@@ -1,0 +1,26 @@
+.Input {
+    width: 80%; /* The input div takes all of the width of its parent div */
+    padding: 10px; /* ... the element will not be touching the input div box */
+    box-sizing: border-box; 
+}
+
+.InputElement { /* The ACTUAL <input /> */
+    outline: none; /* no outline */
+    border: 1px solid #ccc; /* lighter color for outline */
+    background-color: white; /* does not change much but makes sure it is white I guess ? */
+    font: inherit; /* same font as parent */
+    padding: 6px 10px; /* padding around input text, 6px from up down and 10 px both sides */
+    display: block; /* need to understand this */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.InputElement:focus {
+    outline: none;
+    border: 1px solid rgb(104, 196, 190);
+}
+
+.Invalid, .Invalid:focus {
+    border: 1px solid red;
+    background-color: #f3b8b1;
+}
