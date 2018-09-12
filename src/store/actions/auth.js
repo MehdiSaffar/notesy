@@ -22,7 +22,7 @@ export const logoutUser = _ => ({
     type: actionTypes.LOGOUT_USER,
 })
 
-export const loginUser = (email, password) => (dispatch, getState) => {
+export const loginUser = (email, password, callback) => (dispatch, getState) => {
     dispatch(loginUserStart(email, password))
 
     let url = authUtil.getFirebaseVerifyPasswordUrl(getState().auth.apiKey)
@@ -43,6 +43,7 @@ export const loginUser = (email, password) => (dispatch, getState) => {
                 expiresIn: response.data.expiresIn,
             }
             dispatch(loginUserSuccess(authData))
+            if(callback) callback()
         })
         .catch(error => {
             dispatch(loginUserFail(error))
@@ -64,7 +65,7 @@ export const signupUserFail = (error) => ({
     error
 })
 
-export const signupUser = (email, password) => (dispatch, getState) => {
+export const signupUser = (email, password, callback) => (dispatch, getState) => {
     dispatch(signupUserStart(email, password))
 
     let url = authUtil.getFirebaseSignupNewUser(getState().auth.apiKey)
@@ -86,6 +87,7 @@ export const signupUser = (email, password) => (dispatch, getState) => {
                 expiresIn: response.data.expiresIn,
             }
             dispatch(signupUserSuccess(authData))
+            if(callback) callback()
         })
         .catch(error => {
             dispatch(signupUserFail(error.response.data.error))

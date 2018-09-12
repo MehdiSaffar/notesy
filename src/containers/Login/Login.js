@@ -3,9 +3,11 @@ import Form from "./../../components/UI/Form/Form"
 import Button from "./../../components/UI/Form/Button/Button"
 import * as actions from "../../store/actions/index"
 import { connect } from "react-redux"
+import { Redirect } from 'react-router'
 
 class Login extends Component {
     loginForm = () => ({
+        name: "login",
         elements: [
             {
                 name: "email",
@@ -42,44 +44,44 @@ class Login extends Component {
     })
 
     signUpForm = () => ({
-            elements: [
-                {
-                    name: "email",
-                    label: "Email",
-                    value: "",
-                    isTouched: false,
-                    isValid: false,
-                    elementConfig: {
-                        type: "text",
-                        placeholder: "Email Address",
-                    },
-                    validation: {
-                        isEmail: true,
-                        isRequired: true,
-                    },
+        name: "signup",
+        elements: [
+            {
+                name: "email",
+                label: "Email",
+                value: "",
+                isTouched: false,
+                isValid: false,
+                elementConfig: {
+                    type: "text",
+                    placeholder: "Email Address",
                 },
-                {
-                    name: "password",
-                    label: "Password",
-                    value: "",
-                    isTouched: false,
-                    isValid: false,
-                    elementConfig: {
-                        type: "password",
-                        placeholder: "Password",
-                    },
-                    validation: {
-                        isEmail: false,
-                        isRequired: true,
-                    },
+                validation: {
+                    isEmail: true,
+                    isRequired: true,
                 },
-            ],
-            formIsValid: false,
+            },
+            {
+                name: "password",
+                label: "Password",
+                value: "",
+                isTouched: false,
+                isValid: false,
+                elementConfig: {
+                    type: "password",
+                    placeholder: "Password",
+                },
+                validation: {
+                    isEmail: false,
+                    isRequired: true,
+                },
+            },
+        ],
+        formIsValid: false,
     })
 
     state = {
-        isLoginForm: true,
-        form: this.signUpForm(),
+        form: this.loginForm(),
     }
 
     // onFormValidChanged = newValidValue => {
@@ -92,7 +94,7 @@ class Login extends Component {
         const password = this.state.form.elements.find(
             el => el.name === "password"
         ).value
-        this.props.dispatchLoginUser(email, password)
+        this.props.dispatchLoginUser(email, password, this.onUserLoggedInHandler)
     }
 
     onLogoutButtonClickedHandler = event => {
@@ -111,27 +113,41 @@ class Login extends Component {
         const password = this.state.form.elements.find(
             el => el.name === "password"
         ).value
-        this.props.dispatchSignupUser(email, password)
+        this.props.dispatchSignupUser(
+            email,
+            password,
+            this.onUserSignedUpHandler
+        )
+    }
+
+    onUserSignedUpHandler = () => {
+        
+    }
+
+    onUserLoggedInHandler = () => {
+        
     }
 
     onChangeFormClickedHandler = event => {
         event.preventDefault()
         if (this.state.isLoginForm) {
-            this.setState({ form: this.signUpForm(), isLoginForm: false })
+            this.setState({ form: this.signUpForm() })
         } else {
-            this.setState({ form: this.loginForm(), isLoginForm: true })
+            this.setState({ form: this.loginForm() })
         }
     }
 
     render() {
+        const redirect = this.props.isLoggedIn ? <Redirect to="/" /> : null
         return (
-            <Fragment>
+            <div>
+                {redirect}
                 <Form
                     form={this.state.form}
                     // onFormValidChanged={this.onFormValidChanged}
                     onFormUpdated={this.onFormUpdatedHandler}
                 />
-                {this.state.isLoginForm ? (
+                {this.state.form.name === "login" ? (
                     <Fragment>
                         <Button
                             type="submit"
@@ -169,7 +185,7 @@ class Login extends Component {
                         : "You are NOT logged in!"}
                 </p>
                 <p>
-                    {this.state.isLoginForm ? (
+                    {this.state.form.name === "login" ? (
                         <a href="" onClick={this.onChangeFormClickedHandler}>
                             Not signed up? Sign up now!
                         </a>
@@ -179,7 +195,7 @@ class Login extends Component {
                         </a>
                     )}
                 </p>
-            </Fragment>
+            </div>
         )
     }
 }
@@ -189,10 +205,10 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    dispatchLoginUser: (email, password) =>
-        dispatch(actions.loginUser(email, password)),
-    dispatchSignupUser: (email, password) =>
-        dispatch(actions.signupUser(email, password)),
+    dispatchLoginUser: (email, password, callback) =>
+        dispatch(actions.loginUser(email, password, callback)),
+    dispatchSignupUser: (email, password, callback) =>
+        dispatch(actions.signupUser(email, password, callback)),
     dispatchLogoutUser: _ => dispatch(actions.logoutUser()),
 })
 
