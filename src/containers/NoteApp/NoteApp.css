@@ -1,0 +1,16 @@
+.Split {
+    /* background-color: blueviolet; */
+    height: 100%;
+    width: 50%;
+    position: fixed;
+    overflow-x: hidden;
+}
+
+.Left {
+    /* background-color: aqua; */
+    left: 0;
+}
+
+.Right {
+    right: 0;
+}

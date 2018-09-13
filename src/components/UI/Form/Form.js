@@ -3,10 +3,6 @@ import Input from "./Input/Input"
 import produce from "immer"
 
 class Form extends Component {
-    // static getDerivedStateFromProps(nextProps, nextState) {
-    //     if (nextState.form.length === 0) return { form: nextProps.form }
-    //     else return nextState
-    // }
 
     checkInputValidity = (value, validation) => {
         if (validation.minLength) {

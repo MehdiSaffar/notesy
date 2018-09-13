@@ -2,6 +2,7 @@ import React, { Component, Fragment } from "react"
 import { Switch, Route } from "react-router"
 import Login from "../Login/Login"
 import Main from "../Main/Main"
+import NoteApp from "../NoteApp/NoteApp"
 import NavBar from "./../../components/UI/NavBar/NavBar"
 import NavItem from "./../../components/UI/NavBar/NavItem/NavItem"
 import classes from "./Layout.css"
@@ -24,6 +25,7 @@ class Layout extends Component {
                 <div className={classes.Content}>
                     <Switch>
                         <Route path="/login" exact component={Login} />
+                        <Route path="/app" exact component={NoteApp} />
                         <Route path="/" exact component={Main} />
                     </Switch>
                 </div>
