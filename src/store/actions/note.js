@@ -39,19 +39,37 @@ export const getNotes = () => dispatch => {
 }
 
 // // CURRENT NOTE
-export const updateCurrentNote = (title, content) => ({type: actionTypes.UPDATE_CURRENT_NOTE, title, content})
-export const setCurrentNote = (id) => ({type: actionTypes.SET_CURRENT_NOTE, id: id})
-export const saveCurrentNote = (id, title, content) => dispatch => {
-    const saveCurrentNoteStart = (id,title,content) => ({ type: actionTypes.SAVE_CURRENT_NOTE_START, id,title,content})
-    const saveCurrentNoteFail = error => ({ type: actionTypes.SAVE_CURRENT_NOTE_FAIL, error })
-    const saveCurrentNoteSuccess = () => ({
-        type: actionTypes.SAVE_CURRENT_NOTE_SUCCESS,
+export const updateCurrentNote = (title, content) => dispatch => {
+    dispatch(() => ({ type: actionTypes.UPDATE_CURRENT_NOTE }))
+    return Promise.resolve({
+        title,
+        content,
+    })
+}
+
+export const setCurrentNote = id => ({
+    type: actionTypes.SET_CURRENT_NOTE,
+    id: id,
+})
+export const saveNote = (id, title, content) => dispatch => {
+    const saveNoteStart = (id, title, content) => ({
+        type: actionTypes.SAVE_NOTE_START,
+        id,
+        title,
+        content,
+    })
+    const saveNoteFail = error => ({ type: actionTypes.SAVE_NOTE_FAIL, error })
+    const saveNoteSuccess = () => ({
+        type: actionTypes.SAVE_NOTE_SUCCESS,
     })
 
-    dispatch(saveCurrentNoteStart(id,title,content))
+    dispatch(saveNoteStart(id, title, content))
     const url = notesEndpoint + "/" + id + "/.json"
 
-    axios.patch(url, {title, content})
-        .then(response => dispatch(saveCurrentNoteSuccess()))
-        .catch(error => dispatch(saveCurrentNoteFail(error.response.data.error)))
-} 
+    axios
+        .patch(url, { title, content })
+        .then(response => {
+            dispatch(saveNoteSuccess())
+        })
+        .catch(error => dispatch(saveNoteFail(error.response.data.error)))
+}

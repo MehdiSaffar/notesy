@@ -35,9 +35,6 @@ const setCurrentNote = (state, action) => produce(state, draftState => {
 })
 
 const updateCurrentNote = (state, action) => produce(state, draftState => {
-    draftState.currentNote = {
-        id: action.id,
-        title: action.title,
-        content: action.content
-    }
+    draftState.currentNote.title = action.title
+    draftState.currentNote.content = action.content
 })

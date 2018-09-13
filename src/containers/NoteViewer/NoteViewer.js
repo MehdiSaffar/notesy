@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from "react"
 import { produce } from "immer"
-import classes from './NoteViewer.css'
-import {connect} from 'react-redux';
-import * as actions from '../../store/actions/index'
+import classes from "./NoteViewer.css"
+import { connect } from "react-redux"
+import * as actions from "../../store/actions/index"
 
 class NoteViewer extends Component {
     state = {
@@ -13,12 +13,14 @@ class NoteViewer extends Component {
 
     static getDerivedStateFromProps(props, state) {
         console.log("getDerivedStateFromProps")
-        if(props.id !== undefined && props.id !== state.id) {
-            console.log(`received new note from id: ${state.id} to id:${props.id}`)
+        if (props.id !== undefined && props.id !== state.id) {
+            console.log(
+                `received new note from id: ${state.id} to id:${props.id}`
+            )
             const newState = {
                 id: props.id,
                 title: props.title,
-                content: props.content
+                content: props.content,
             }
             console.log("new state: ", newState)
             return newState
@@ -27,14 +29,19 @@ class NoteViewer extends Component {
     }
 
     onContentChanged = event => {
-        // this.props.dispatchUpdateCurrentNote(this.props.title, event.target.value)
-        this.setState(produce(this.state, draftState => {
-            draftState.content = event.target.value
-        }))
+        this.setState(
+            produce(this.state, draftState => {
+                draftState.content = event.target.value
+            })
+        )
     }
 
     onSaveNote = () => {
-        this.props.dispatchSaveCurrentNote(this.state.id, this.state.title, this.state.content)
+        this.props
+            .dispatchUpdateCurrentNote(this.state.title, this.state.content)
+            .then(({title, content}) => {
+                this.props.dispatchSaveCurrentNote(this.state.id, title, content)
+            })
     }
 
     render() {
@@ -53,8 +60,10 @@ class NoteViewer extends Component {
 }
 
 const mapDispatchToProps = dispatch => ({
-    dispatchUpdateCurrentNote: (title, content) => dispatch(actions.updateCurrentNote(title, content)),
-    dispatchSaveCurrentNote: (id,title,content) => dispatch(actions.saveCurrentNote(id, title, content))
+    dispatchUpdateCurrentNote: (title, content) =>
+        dispatch(actions.updateCurrentNote(title, content)),
+    dispatchSaveCurrentNote: (id, title, content) =>
+        dispatch(actions.saveNote(id, title, content)),
 })
 
 const mapStateToProps = state => ({
@@ -67,4 +76,3 @@ export default connect(
     mapStateToProps,
     mapDispatchToProps
 )(NoteViewer)
-
