@@ -6,7 +6,7 @@ export const removeNote = noteId => ({ type: actionTypes.REMOVE_NOTE, noteId })
 export const getNote = noteId => ({ type: actionTypes.GET_NOTE, noteId })
 
 // NOTES
-const notesEndpoint = "https://react-notesy.firebaseio.com/notes.json"
+const notesEndpoint = "https://react-notesy.firebaseio.com/notes"
 
 export const getNotes = () => dispatch => {
     const getNotesStart = () => ({ type: actionTypes.GET_NOTES_START })
@@ -17,7 +17,7 @@ export const getNotes = () => dispatch => {
     })
 
     dispatch(getNotesStart())
-    const request = notesEndpoint
+    const request = notesEndpoint + ".json"
     axios
         .get(request)
         .then(response => {
@@ -41,3 +41,17 @@ export const getNotes = () => dispatch => {
 // // CURRENT NOTE
 export const updateCurrentNote = (title, content) => ({type: actionTypes.UPDATE_CURRENT_NOTE, title, content})
 export const setCurrentNote = (id) => ({type: actionTypes.SET_CURRENT_NOTE, id: id})
+export const saveCurrentNote = (id, title, content) => dispatch => {
+    const saveCurrentNoteStart = (id,title,content) => ({ type: actionTypes.SAVE_CURRENT_NOTE_START, id,title,content})
+    const saveCurrentNoteFail = error => ({ type: actionTypes.SAVE_CURRENT_NOTE_FAIL, error })
+    const saveCurrentNoteSuccess = () => ({
+        type: actionTypes.SAVE_CURRENT_NOTE_SUCCESS,
+    })
+
+    dispatch(saveCurrentNoteStart(id,title,content))
+    const url = notesEndpoint + "/" + id + "/.json"
+
+    axios.patch(url, {title, content})
+        .then(response => dispatch(saveCurrentNoteSuccess()))
+        .catch(error => dispatch(saveCurrentNoteFail(error.response.data.error)))
+} 

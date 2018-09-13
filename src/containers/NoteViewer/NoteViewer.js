@@ -6,7 +6,6 @@ import * as actions from '../../store/actions/index'
 
 class NoteViewer extends Component {
     state = {
-        touched: false,
         id: null,
         title: "",
         content: "",
@@ -17,7 +16,6 @@ class NoteViewer extends Component {
         if(props.id !== undefined && props.id !== state.id) {
             console.log(`received new note from id: ${state.id} to id:${props.id}`)
             const newState = {
-                touched: true,
                 id: props.id,
                 title: props.title,
                 content: props.content
@@ -36,7 +34,7 @@ class NoteViewer extends Component {
     }
 
     onSaveNote = () => {
-        this.props.dispatchUpdateCurrentNote(this.state.title, this.state.content)
+        this.props.dispatchSaveCurrentNote(this.state.id, this.state.title, this.state.content)
     }
 
     render() {
@@ -48,14 +46,15 @@ class NoteViewer extends Component {
                     onChange={this.onContentChanged}
                     className={classes.Content}
                 />
-                <button onClick={this.onSaveNote}>Save to Redux</button>
+                <button onClick={this.onSaveNote}>Save to Firebase</button>
             </Fragment>
         )
     }
 }
 
 const mapDispatchToProps = dispatch => ({
-    dispatchUpdateCurrentNote: (title, content) => dispatch(actions.updateCurrentNote(title, content))
+    dispatchUpdateCurrentNote: (title, content) => dispatch(actions.updateCurrentNote(title, content)),
+    dispatchSaveCurrentNote: (id,title,content) => dispatch(actions.saveCurrentNote(id, title, content))
 })
 
 const mapStateToProps = state => ({
