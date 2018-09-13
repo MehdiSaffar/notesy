@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react"
-import { Switch, Route } from "react-router"
+import { Switch, Route, Redirect } from "react-router"
 import Login from "../Login/Login"
 import Main from "../Main/Main"
 import NoteApp from "../NoteApp/NoteApp"
@@ -16,7 +16,10 @@ class Layout extends Component {
             <Fragment>
                 <NavBar>
                     {this.props.isLoggedIn ? (
-                        <NavItem to="/logout" onClick={() => this.props.dispatchLogoutUser()}>Logout</NavItem>
+                        <Fragment>
+                            <NavItem to="/logout" onClick={() => this.props.dispatchLogoutUser()}>Logout</NavItem>
+                            <NavItem to="/app">Notes</NavItem>
+                        </Fragment>
                     ) : (
                         <NavItem to="/login">Login</NavItem>
                     )}
@@ -25,7 +28,7 @@ class Layout extends Component {
                 <div className={classes.Content}>
                     <Switch>
                         <Route path="/login" exact component={Login} />
-                        <Route path="/app" exact component={NoteApp} />
+                        {this.props.isLoggedIn ? <Route path="/app" exact component={NoteApp} /> : <Redirect to="/login" />}
                         <Route path="/" exact component={Main} />
                     </Switch>
                 </div>
