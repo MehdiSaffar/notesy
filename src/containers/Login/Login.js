@@ -4,6 +4,7 @@ import Button from "./../../components/UI/Form/Button/Button"
 import * as actions from "../../store/actions/index"
 import { connect } from "react-redux"
 import { Redirect } from 'react-router'
+import classes from './Login.css'
 
 class Login extends Component {
     loginForm = () => ({
@@ -140,7 +141,7 @@ class Login extends Component {
     render() {
         const redirect = this.props.isLoggedIn ? <Redirect to="/" /> : null
         return (
-            <div>
+            <div className={classes.Login}>
                 {redirect}
                 <Form
                     form={this.state.form}

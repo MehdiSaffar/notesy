@@ -1,9 +1,7 @@
 .NavItem {
-    /* width: 100%; */
     padding: 8px;
     box-sizing: border-box;
     text-align: center;
-    display: inline-block;
     background-color: #ccc;
     border-bottom: 2px solid red;
     font-family: inherit;

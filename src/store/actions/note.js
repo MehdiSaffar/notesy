@@ -1,12 +1,30 @@
 import actionTypes from "./actionTypes"
 import axios from "axios"
 
-export const addNote = content => ({ type: actionTypes.ADD_NOTE, ...content })
+// NOTES
+const notesEndpoint = "https://react-notesy.firebaseio.com/notes"
+
+export const addNote = (title, content) => dispatch => {
+    const start = () => ({ type: actionTypes.ADD_NOTE_START })
+    const fail = error => ({ type: actionTypes.ADD_NOTE_FAIL, error })
+    const success = (id, title, content) => ({
+        type: actionTypes.ADD_NOTE_SUCCESS,
+        id, title, content,
+    })
+    dispatch(start())
+   
+    const noteData = {title, content}
+
+    axios.post(notesEndpoint + '.json', noteData)
+    .then(response => {
+        const id = response.data.name
+        dispatch(success(id, title, content))
+    })
+    .catch(error => dispatch(fail(error.response.data.error)))
+}
 export const removeNote = noteId => ({ type: actionTypes.REMOVE_NOTE, noteId })
 export const getNote = noteId => ({ type: actionTypes.GET_NOTE, noteId })
 
-// NOTES
-const notesEndpoint = "https://react-notesy.firebaseio.com/notes"
 
 export const getNotes = () => dispatch => {
     const getNotesStart = () => ({ type: actionTypes.GET_NOTES_START })
@@ -40,7 +58,7 @@ export const getNotes = () => dispatch => {
 
 // // CURRENT NOTE
 export const updateCurrentNote = (title, content) => dispatch => {
-    dispatch(() => ({ type: actionTypes.UPDATE_CURRENT_NOTE }))
+    dispatch(({ type: actionTypes.UPDATE_CURRENT_NOTE, title, content }))
     return Promise.resolve({
         title,
         content,

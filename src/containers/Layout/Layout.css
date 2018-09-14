@@ -1,3 +1,30 @@
+.Layout {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+
+    /* For its contents */
+    display: flex;
+    flex-direction: column;
+}
+
+.NavBar {
+    display: flex;
+    flex-direction: row;
+}
+
 .Content {
-    /* padding: 10px; */
+    background-color: brown;
+    width: 100%;
+    overflow: hidden;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.Footer {
+    flex-basis: 100px;
+    flex-shrink: 0;
+    background-color: yellow;
+    width: 100%;
+    align-self: flex-end;
 }
