@@ -14,14 +14,12 @@ class NoteList extends Component {
         this.props.setCurrentNote(id)
     }
 
-    onAddNoteButtonClickedHandler = async () => {
-        // const {title, content} = await 
+    onAddNoteButtonClickedHandler = () => {
         this.props.addNote('New title', 'New content')
     }
 
     render() {
-        return (
-            <div className={classes.NoteList}>
+        const addNoteButton = (
                 <button
                     className={classes2.NoteListItem}
                     type="button"
@@ -29,11 +27,16 @@ class NoteList extends Component {
                 >
                     Add note
                 </button>
-                {this.props.notes ? (
+        )
+
+
+        const notes = 
+                this.props.notes ? (
                     this.props.notes.map(note => (
                         <NoteListItem
                             key={note.id}
                             title={note.title}
+                            isSelected={ this.props.currentNote && this.props.currentNote.id === note.id}
                             onClick={() =>
                                 this.onNoteListItemClickedHandler(note.id)
                             }
@@ -41,9 +44,12 @@ class NoteList extends Component {
                             {note.content}
                         </NoteListItem>
                     ))
-                ) : (
-                    <p>No notes found</p>
-                )}
+                ) : <p>No notes found</p>
+                
+        return (
+            <div className={classes.NoteList}>
+                {addNoteButton}
+                {notes}
             </div>
         )
     }
@@ -51,6 +57,7 @@ class NoteList extends Component {
 
 const mapStateToProps = state => ({
     notes: state.note.notes,
+    currentNote: state.note.currentNote,
 })
 
 export default connect(

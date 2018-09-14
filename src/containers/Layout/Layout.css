@@ -11,10 +11,11 @@
 .NavBar {
     display: flex;
     flex-direction: row;
+    background-color: #ccc;
 }
 
 .Content {
-    background-color: brown;
+    /* background-color: brown; */
     width: 100%;
     flex: 1 1 auto;
     min-height: 200px;

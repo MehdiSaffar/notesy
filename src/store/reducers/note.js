@@ -1,5 +1,4 @@
 import actionTypes from "../actions/actionTypes"
-import axios from "axios"
 import { produce } from "immer"
 
 const initialState = {

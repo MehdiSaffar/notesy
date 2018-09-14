@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from "react"
 import NoteList from "../NoteList/NoteList"
-import NoteViewer from "../NoteViewer/NoteViewer"
+import NoteEditor from "../NoteEditor/NoteEditor";
 import classes from "./NoteApp.css"
 
 class NoteApp extends Component {
@@ -12,7 +12,7 @@ class NoteApp extends Component {
                 </div>
                 <div className={classes.Separator} />
                 <div className={[classes.Split, classes.Right].join(" ")}>
-                    <NoteViewer />
+                    <NoteEditor />
                 </div>
             </div>
         )

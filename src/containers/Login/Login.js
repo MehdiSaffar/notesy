@@ -139,7 +139,7 @@ class Login extends Component {
     }
 
     render() {
-        const redirect = this.props.isLoggedIn ? <Redirect to="/" /> : null
+        const redirect = this.props.isLoggedIn ? <Redirect to="/app" /> : null
         return (
             <div className={classes.Login}>
                 {redirect}
