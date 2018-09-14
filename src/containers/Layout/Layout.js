@@ -15,14 +15,14 @@ class Layout extends Component {
         return (
             <div className={classes.Layout}>
                 <div className={classes.NavBar}>
-                    <NavItem
+                    {this.props.isLoggedIn && <NavItem
                         to="/logout"
-                        onClick={() => this.props.dispatchLogoutUser()}
+                        onClick={() => this.props.logoutUser()}
                     >
                         Logout
-                    </NavItem>
-                    <NavItem to="/app">Notes</NavItem>
-                    <NavItem to="/login">Login</NavItem>
+                    </NavItem>}
+                    {this.props.isLoggedIn && <NavItem to="/app">Notes</NavItem>}
+                    {this.props.isLoggedIn || <NavItem to="/login">Login</NavItem>}
                     <NavItem to="/">Main page</NavItem>
                 </div>
                 <div className={classes.Content}>
@@ -36,7 +36,9 @@ class Layout extends Component {
                         <Route path="/" exact component={Main} />
                     </Switch>
                 </div>
-                <div className={classes.Footer} />
+                <div className={classes.Footer}>
+                            <p style={{margin: '0'}}>Some kind of status bar</p>
+                </div>
             </div>
         )
     }
@@ -46,13 +48,11 @@ const mapStateToProps = state => ({
     isLoggedIn: state.auth.isLoggedIn,
 })
 
-const mapDispatchToProps = dispatch => ({
-    dispatchLogoutUser: () => dispatch(actions.logoutUser()),
-})
-
 export default withRouter(
     connect(
         mapStateToProps,
-        mapDispatchToProps
+        {
+            logoutUser: actions.logoutUser
+        }
     )(Layout)
 )

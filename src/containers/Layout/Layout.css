@@ -16,15 +16,12 @@
 .Content {
     background-color: brown;
     width: 100%;
-    overflow: hidden;
-    flex-grow: 1;
-    flex-shrink: 1;
+    flex: 1 1 auto;
+    min-height: 200px;
 }
 
 .Footer {
-    flex-basis: 100px;
-    flex-shrink: 0;
+    flex: 0 0 auto;
     background-color: yellow;
-    width: 100%;
-    align-self: flex-end;
+    text-align: center;
 }
