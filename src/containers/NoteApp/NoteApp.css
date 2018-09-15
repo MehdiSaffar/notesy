@@ -13,6 +13,10 @@
     /* position: relative; */
 }
 
+.Split:first-of-type {
+    width: 20%;
+}
+
 .Separator {
     flex-basis: 5px;
     background-color: #eee;

@@ -18,6 +18,10 @@ class NoteList extends Component {
         this.props.addNote('New title', 'New content')
     }
 
+    onDeleteNoteButtonClickedHandler = (id) => {
+        this.props.deleteNote(id)
+    }
+
     render() {
         const addNoteButton = (
                 <button
@@ -37,6 +41,7 @@ class NoteList extends Component {
                             key={note.id}
                             title={note.title}
                             isSelected={ this.props.currentNote && this.props.currentNote.id === note.id}
+                            onCloseButtonClicked={() => this.onDeleteNoteButtonClickedHandler(note.id)}
                             onClick={() =>
                                 this.onNoteListItemClickedHandler(note.id)
                             }
@@ -66,5 +71,6 @@ export default connect(
         getNotes: actions.getNotes,
         setCurrentNote: actions.setCurrentNote,
         addNote: actions.addNote,
+        deleteNote: actions.removeNote,
     }
 )(NoteList)

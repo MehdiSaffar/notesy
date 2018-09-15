@@ -9,7 +9,7 @@ const initialState = {
 export default (state = initialState, action) => {
     const map = {
         [actionTypes.ADD_NOTE_SUCCESS]: addNote,
-        [actionTypes.REMOVE_NOTE]: removeNote,
+        [actionTypes.REMOVE_NOTE_SUCCESS]: removeNote,
         // [actionTypes.GET_NOTE]: getNote,
         [actionTypes.GET_NOTES_SUCCESS]: getNotes,
         [actionTypes.UPDATE_CURRENT_NOTE]: updateCurrentNote,
@@ -28,9 +28,9 @@ const addNote = (state, action) =>
         })
     })
 
-const removeNote = (state, action) => {
-    return state
-}
+const removeNote = (state, action) => produce(state, draftState => {
+    draftState.notes = draftState.notes.filter(note => note.id !== action.id)
+})
 
 const getNotes = (state, action) =>
     produce(state, draftState => {

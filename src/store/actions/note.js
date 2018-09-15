@@ -22,7 +22,21 @@ export const addNote = (title, content) => dispatch => {
     })
     .catch(error => dispatch(fail(error.response.data.error)))
 }
-export const removeNote = noteId => ({ type: actionTypes.REMOVE_NOTE, noteId })
+export const removeNote = (id) => dispatch => {
+    const start = () => ({ type: actionTypes.REMOVE_NOTE_START })
+    const fail = error => ({ type: actionTypes.REMOVE_NOTE_FAIL, error })
+    const success = (id, title, content) => ({
+        type: actionTypes.REMOVE_NOTE_SUCCESS,
+        id, title, content,
+    })
+    dispatch(start())
+
+    axios.delete(notesEndpoint + "/" + id + ".json")
+    .then(response => {
+        dispatch(success(id))
+    })
+    .catch(error => dispatch(fail(error.response.data.error)))
+}
 export const getNote = noteId => ({ type: actionTypes.GET_NOTE, noteId })
 
 

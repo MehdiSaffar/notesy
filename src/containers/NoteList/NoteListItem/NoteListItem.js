@@ -8,6 +8,7 @@ const noteListItem = (props) => {
     }
   return (
     <div className={cls.join(' ')} onClick={props.onClick}>
+        <button className={[classes.CloseButton, 'fa fa-close'].join(' ')} onClick={props.onCloseButtonClicked}/>
         <h3 className={classes.Title}>{props.title}</h3>
       {props.children}
     </div>
