@@ -19,10 +19,12 @@ export const addNote = (title, content) => dispatch => {
     .then(response => {
         const id = response.data.name
         dispatch(success(id, title, content))
+        dispatch(setCurrentNote(id))
     })
     .catch(error => dispatch(fail(error.response.data.error)))
 }
-export const removeNote = (id) => dispatch => {
+export const removeNote = (id) => (dispatch, getState) => {
+    dispatch(updateStatus('Removing note...'))
     const start = () => ({ type: actionTypes.REMOVE_NOTE_START })
     const fail = error => ({ type: actionTypes.REMOVE_NOTE_FAIL, error })
     const success = (id, title, content) => ({
@@ -34,8 +36,16 @@ export const removeNote = (id) => dispatch => {
     axios.delete(notesEndpoint + "/" + id + ".json")
     .then(response => {
         dispatch(success(id))
+        dispatch(updateStatus())
+        if(getState().note.notes.length) {
+            const goodId = getState().note.notes[getState().note.notes.length - 1].id
+            dispatch(setCurrentNote(goodId))
+        }
     })
-    .catch(error => dispatch(fail(error.response.data.error)))
+    .catch(error => {
+        console.log(error)
+        dispatch(fail(error.response.data.error))
+    })
 }
 export const getNote = noteId => ({ type: actionTypes.GET_NOTE, noteId })
 
@@ -84,6 +94,7 @@ export const setCurrentNote = id => ({
     id: id,
 })
 export const saveNote = (id, title, content) => dispatch => {
+    dispatch(updateStatus('Saving note...'))
     const saveNoteStart = (id, title, content) => ({
         type: actionTypes.SAVE_NOTE_START,
         id,
@@ -102,6 +113,9 @@ export const saveNote = (id, title, content) => dispatch => {
         .patch(url, { title, content })
         .then(response => {
             dispatch(saveNoteSuccess())
+            dispatch(updateStatus())
         })
         .catch(error => dispatch(saveNoteFail(error.response.data.error)))
 }
+
+export const updateStatus = (status = '') => ({type: actionTypes.NOTE_UPDATE_STATUS, status})

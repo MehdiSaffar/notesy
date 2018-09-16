@@ -1,5 +1,6 @@
 import React from "react"
 import classes from "./Input.css"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const input = props => {
     let element = null
@@ -40,7 +41,11 @@ const input = props => {
     }
 
     return (
-        <div className={classes.Input}>{element}</div>
+        <div className={classes.Input}>
+            {props.icon && <FontAwesomeIcon icon={props.icon} />}
+            {props.label && <label className={classes.Label}>{props.label + ':'}</label>}
+            {element}
+        </div>
     )
 }
 

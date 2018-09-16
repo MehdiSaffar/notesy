@@ -11,7 +11,7 @@
 .NavBar {
     display: flex;
     flex-direction: row;
-    background-color: #ccc;
+    border-bottom: 2px var(--darker-blue) solid;
 }
 
 .Content {
@@ -23,6 +23,10 @@
 
 .Footer {
     flex: 0 0 auto;
-    background-color: yellow;
-    text-align: center;
+    text-align: right;
+    padding: 0px 10px;
+    border-top: 2px rgb(146, 202, 255) solid;
+}
+.Footer p {
+    margin: 0;
 }

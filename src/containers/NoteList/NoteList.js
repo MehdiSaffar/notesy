@@ -3,7 +3,7 @@ import * as actions from "../../store/actions/index"
 import { connect } from "react-redux"
 import NoteListItem from "./NoteListItem/NoteListItem"
 import classes from "./NoteList.css"
-import classes2 from "./NoteListItem/NoteListItem.css"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 class NoteList extends Component {
     componentDidMount() {
@@ -15,24 +15,24 @@ class NoteList extends Component {
     }
 
     onAddNoteButtonClickedHandler = () => {
-        this.props.addNote('New title', 'New content')
-    }
-
-    onDeleteNoteButtonClickedHandler = (id) => {
-        this.props.deleteNote(id)
+        this.props.addNote('', '')
     }
 
     render() {
         const addNoteButton = (
                 <button
-                    className={classes2.NoteListItem}
-                    type="button"
+                    className={classes.AddNote}
                     onClick={this.onAddNoteButtonClickedHandler}
                 >
-                    Add note
+                    <FontAwesomeIcon icon="plus-circle" fixedWidth/>
                 </button>
         )
 
+        const toolbar = (
+            <div className={classes.Toolbar}>
+                {addNoteButton}
+            </div>
+        )
 
         const notes = 
                 this.props.notes ? (
@@ -41,7 +41,6 @@ class NoteList extends Component {
                             key={note.id}
                             title={note.title}
                             isSelected={ this.props.currentNote && this.props.currentNote.id === note.id}
-                            onCloseButtonClicked={() => this.onDeleteNoteButtonClickedHandler(note.id)}
                             onClick={() =>
                                 this.onNoteListItemClickedHandler(note.id)
                             }
@@ -53,7 +52,7 @@ class NoteList extends Component {
                 
         return (
             <div className={classes.NoteList}>
-                {addNoteButton}
+                {toolbar}
                 {notes}
             </div>
         )

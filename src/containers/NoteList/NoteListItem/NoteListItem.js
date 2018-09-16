@@ -6,11 +6,12 @@ const noteListItem = (props) => {
     if(props.isSelected) {
         cls.push(classes.Selected)
     }
+    const title = props.title === '' ? "Title" : props.title
+    const content = props.children === '' ? "Content" : props.children
   return (
     <div className={cls.join(' ')} onClick={props.onClick}>
-        <button className={[classes.CloseButton, 'fa fa-close'].join(' ')} onClick={props.onCloseButtonClicked}/>
-        <h3 className={classes.Title}>{props.title}</h3>
-      {props.children}
+        <h3 className={classes.Title}>{title}</h3>
+      {content}
     </div>
   )
 }

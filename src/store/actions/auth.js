@@ -22,7 +22,7 @@ export const logoutUser = _ => ({
     type: actionTypes.LOGOUT_USER,
 })
 
-export const loginUser = (email, password, callback) => (dispatch, getState) => {
+export const loginUser = (email, password) => (dispatch, getState) => {
     dispatch(loginUserStart(email, password))
 
     let url = authUtil.getFirebaseVerifyPasswordUrl(getState().auth.apiKey)
@@ -33,7 +33,7 @@ export const loginUser = (email, password, callback) => (dispatch, getState) => 
         returnSecureToken: true,
     }
 
-    axios
+    return axios
         .post(url, authData)
         .then(response => {
             const authData = {
@@ -43,10 +43,11 @@ export const loginUser = (email, password, callback) => (dispatch, getState) => 
                 expiresIn: response.data.expiresIn,
             }
             dispatch(loginUserSuccess(authData))
-            if(callback) callback()
+            return Promise.resolve()
         })
         .catch(error => {
             dispatch(loginUserFail(error))
+            return Promise.reject()
         })
 }
 
@@ -65,7 +66,7 @@ export const signupUserFail = (error) => ({
     error
 })
 
-export const signupUser = (email, password, callback) => (dispatch, getState) => {
+export const signupUser = (email, password) => (dispatch, getState) => {
     dispatch(signupUserStart(email, password))
 
     let url = authUtil.getFirebaseSignupNewUser(getState().auth.apiKey)
@@ -76,7 +77,7 @@ export const signupUser = (email, password, callback) => (dispatch, getState) =>
         returnSecureToken: true,
     }
 
-    axios
+    return axios
         .post(url, authData)
         .then(response => {
             console.log(response.data)
@@ -87,9 +88,10 @@ export const signupUser = (email, password, callback) => (dispatch, getState) =>
                 expiresIn: response.data.expiresIn,
             }
             dispatch(signupUserSuccess(authData))
-            if(callback) callback()
+            return Promise.resolve(authData)
         })
         .catch(error => {
             dispatch(signupUserFail(error.response.data.error))
+            return Promise.reject(error.response.data.error)
         })
 }

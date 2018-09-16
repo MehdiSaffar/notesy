@@ -4,6 +4,7 @@ import { produce } from "immer"
 const initialState = {
     notes: [],
     currentNote: {},
+    status: 'Ready'
 }
 
 export default (state = initialState, action) => {
@@ -14,6 +15,7 @@ export default (state = initialState, action) => {
         [actionTypes.GET_NOTES_SUCCESS]: getNotes,
         [actionTypes.UPDATE_CURRENT_NOTE]: updateCurrentNote,
         [actionTypes.SET_CURRENT_NOTE]: setCurrentNote,
+        [actionTypes.NOTE_UPDATE_STATUS]: updateNoteStatus,
     }
     const toCall = map[action.type]
     return toCall ? toCall(state, action) : state
@@ -30,6 +32,9 @@ const addNote = (state, action) =>
 
 const removeNote = (state, action) => produce(state, draftState => {
     draftState.notes = draftState.notes.filter(note => note.id !== action.id)
+    if(draftState.currentNote.id === action.id) {
+        draftState.currentNote = {}
+    }
 })
 
 const getNotes = (state, action) =>
@@ -54,3 +59,8 @@ const updateCurrentNote = (state, action) =>
             note => note.id === draftState.currentNote.id
         ).content = action.content
     })
+
+    const updateNoteStatus = (state, action) => produce(state, draftState => {
+        draftState.status = action.status === '' ? 'Ready' : action.status
+    })
+    

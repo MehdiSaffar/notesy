@@ -38,7 +38,7 @@ class Layout extends Component {
 
         const footer = (
             <div className={classes.Footer}>
-                <p style={{margin: '0'}}>Some kind of status bar</p>
+                <p>{this.props.status}</p>
             </div>
         )
 
@@ -54,6 +54,7 @@ class Layout extends Component {
 
 const mapStateToProps = state => ({
     isLoggedIn: state.auth.isLoggedIn,
+    status: state.note.status,
 })
 
 export default withRouter(
