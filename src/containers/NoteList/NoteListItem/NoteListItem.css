@@ -44,3 +44,7 @@ h3 {
     background-color: rgb(255, 111, 111);
     border-color: rgb(255, 69, 69);
 }
+
+.EmptyNote {
+    text-align: center;
+}

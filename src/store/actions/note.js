@@ -24,6 +24,8 @@ export const addNote = (title, content) => dispatch => {
     .catch(error => dispatch(fail(error.response.data.error)))
 }
 export const removeNote = (id) => (dispatch, getState) => {
+    const {title, content} = getState().note.notes.find(el => el.id === id)
+    if(title === '' && content === '' && getState().note.notes.length === 1) return
     dispatch(updateStatus('Removing note...'))
     const start = () => ({ type: actionTypes.REMOVE_NOTE_START, id})
     const fail = error => ({ type: actionTypes.REMOVE_NOTE_FAIL, error })
@@ -40,6 +42,8 @@ export const removeNote = (id) => (dispatch, getState) => {
         if(getState().note.notes.length) {
             const goodId = getState().note.notes[getState().note.notes.length - 1].id
             dispatch(setCurrentNote(goodId))
+        } else {
+            dispatch(addNote('', ''))
         }
     })
     .catch(error => {
