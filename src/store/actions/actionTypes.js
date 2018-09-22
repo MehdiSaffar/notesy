@@ -1,5 +1,6 @@
 export default {
     // NOTE
+    RESET_NOTES: 'RESET_NOTES',
     // // ADD NOTE
     ADD_NOTE_START: 'ADD_NOTE_START',
     ADD_NOTE_FAIL: 'ADD_NOTE_FAIL',

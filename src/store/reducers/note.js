@@ -10,6 +10,7 @@ const initialState = {
 
 export default (state = initialState, action) => {
     const map = {
+        [actionTypes.RESET_NOTES]: resetNotes,
         [actionTypes.ADD_NOTE_SUCCESS]: addNote,
         [actionTypes.ADD_TAG_SUCCESS]: addTag,
         [actionTypes.REMOVE_NOTE_START]: removeNoteStart,
@@ -24,6 +25,8 @@ export default (state = initialState, action) => {
     const toCall = map[action.type]
     return toCall ? toCall(state, action) : state
 }
+
+const resetNotes = (state, action) => ({...initialState})
 
 const addNote = (state, action) =>
     produce(state, draftState => {

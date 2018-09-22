@@ -176,7 +176,7 @@ export const setCurrentNote = id => ({
     type: actionTypes.SET_CURRENT_NOTE,
     id: id,
 })
-export const saveNote = (id, title, content) => dispatch => {
+export const saveNote = (id, title, content) => (dispatch, getState) => {
     dispatch(updateStatus("Saving note..."))
     const saveNoteStart = (id, title, content) => ({
         type: actionTypes.SAVE_NOTE_START,
@@ -190,7 +190,7 @@ export const saveNote = (id, title, content) => dispatch => {
     })
 
     dispatch(saveNoteStart(id, title, content))
-    const url = notesEndpoint + "/" + id + "/.json"
+    const url = notesEndpoint + "/" + id + "/.json?auth=" + getState().auth.idToken
 
     axios
         .patch(url, { title, content })

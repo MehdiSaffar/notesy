@@ -1,6 +1,6 @@
 import actionTypes from "./actionTypes"
 import * as authUtil from "./../../shared/authUtility"
-import axios from 'axios'
+import axios from "axios"
 
 export const loginUserStart = (email, password) => ({
     type: actionTypes.LOGIN_USER_START,
@@ -8,19 +8,23 @@ export const loginUserStart = (email, password) => ({
     password: password,
 })
 
-export const loginUserSuccess = (authData) => ({
+export const loginUserSuccess = authData => ({
     type: actionTypes.LOGIN_USER_SUCCESS,
-    ...authData
+    ...authData,
 })
 
-export const loginUserFail = (error) => ({
+export const loginUserFail = error => ({
     type: actionTypes.LOGIN_USER_FAIL,
-    error
+    error,
 })
 
-export const logoutUser = _ => ({
-    type: actionTypes.LOGOUT_USER,
-})
+export const logoutUser = () => dispatch => {
+    dispatch({type: actionTypes.RESET_NOTES})
+
+    dispatch({
+        type: actionTypes.LOGOUT_USER,
+    })
+}
 
 export const loginUser = (email, password) => (dispatch, getState) => {
     dispatch(loginUserStart(email, password))
@@ -53,17 +57,18 @@ export const loginUser = (email, password) => (dispatch, getState) => {
 
 export const signupUserStart = (email, password) => ({
     type: actionTypes.SIGNUP_USER_START,
-    email, password
+    email,
+    password,
 })
 
-export const signupUserSuccess = (authData) => ({
+export const signupUserSuccess = authData => ({
     type: actionTypes.SIGNUP_USER_SUCCESS,
-    ...authData
+    ...authData,
 })
 
-export const signupUserFail = (error) => ({
+export const signupUserFail = error => ({
     type: actionTypes.SIGNUP_USER_FAIL,
-    error
+    error,
 })
 
 export const signupUser = (email, password) => (dispatch, getState) => {
