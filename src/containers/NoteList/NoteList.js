@@ -39,7 +39,11 @@ class NoteList extends Component {
                         this.props.currentNote &&
                         this.props.currentNote.id === note.id
                     }
+                    isBusyDeleting= {
+                        this.props.deletingNote === note.id
+                    }
                     onClick={() => this.onNoteListItemClickedHandler(note.id)}
+
                 >
                     {note.content}
                 </NoteListItem>
@@ -60,6 +64,7 @@ class NoteList extends Component {
 const mapStateToProps = state => ({
     notes: state.note.notes,
     currentNote: state.note.currentNote,
+    deletingNote: state.note.deletingNote,
 })
 
 export default connect(

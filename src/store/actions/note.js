@@ -25,7 +25,7 @@ export const addNote = (title, content) => dispatch => {
 }
 export const removeNote = (id) => (dispatch, getState) => {
     dispatch(updateStatus('Removing note...'))
-    const start = () => ({ type: actionTypes.REMOVE_NOTE_START })
+    const start = () => ({ type: actionTypes.REMOVE_NOTE_START, id})
     const fail = error => ({ type: actionTypes.REMOVE_NOTE_FAIL, error })
     const success = (id, title, content) => ({
         type: actionTypes.REMOVE_NOTE_SUCCESS,

@@ -38,3 +38,9 @@
 h3 {
     margin: 0;
 }
+
+.BusyDeleting {
+    transition: all 0.2s ease-in;
+    background-color: rgb(255, 111, 111);
+    border-color: rgb(255, 69, 69);
+}

@@ -4,12 +4,14 @@ import { produce } from "immer"
 const initialState = {
     notes: [],
     currentNote: {},
+    deletingNote: null,
     status: 'Ready'
 }
 
 export default (state = initialState, action) => {
     const map = {
         [actionTypes.ADD_NOTE_SUCCESS]: addNote,
+        [actionTypes.REMOVE_NOTE_START]: removeNoteStart,
         [actionTypes.REMOVE_NOTE_SUCCESS]: removeNote,
         // [actionTypes.GET_NOTE]: getNote,
         [actionTypes.GET_NOTES_SUCCESS]: getNotes,
@@ -35,6 +37,10 @@ const removeNote = (state, action) => produce(state, draftState => {
     if(draftState.currentNote.id === action.id) {
         draftState.currentNote = {}
     }
+    draftState.deletingNote = null;
+})
+const removeNoteStart = (state, action) => produce(state, draftState => {
+    draftState.deletingNote = action.id;
 })
 
 const getNotes = (state, action) =>
