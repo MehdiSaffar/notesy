@@ -25,7 +25,7 @@
 }
 
 .Separator {
-    min-width: 4px;
-    flex: 0 0 2px;
-    background-color: var(--blue);
+    min-width: 1px;
+    flex: 0 0 1px;
+    background-color: var(--lighter-blue);
 }
