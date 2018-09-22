@@ -1,32 +1,38 @@
 .NoteListItem {
-    width: auto;
-    display:block;
+    width: calc(100% - 30px);
+    display: block;
     border-bottom: 3px solid var(--lighter-blue);
+    border-right: 2px solid var(--lighter-blue);
     font-family: inherit;
     box-sizing: border-box;
     padding: 7px;
     /* box-shadow: inset 0px 0px 10px 10px rgb(182, 182, 182); */
+    margin-top: 10px;
     max-height: 150px;
     overflow: hidden;
     position: relative;
     min-height: 100px;
     border-radius: 10px;
+    transition: transform 0.2s ease-in-out;
 }
 
-/* .NoteListItem:last-of-type {
-    border-bottom: none;
-} */
-
+.NoteListItem:first-of-type {
+    margin-top: 0px;
+}
 
 .Selected {
     border-color: var(--blue);
     border-right: 4px var(--darker-blue) solid;
     border-radius: 10px;
+    background-color: var(--lighter-blue);
+    transform: translateX(30px);
+    transition: transform 0.2s ease-in-out;
 }
 
 .Title {
     font-weight: bold;
-    padding: 0; margin: 0;
+    padding: 0;
+    margin: 0;
 }
 
 h3 {

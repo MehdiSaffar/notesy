@@ -5,114 +5,110 @@ import * as actions from "../../store/actions/index"
 import { connect } from "react-redux"
 import { Redirect } from "react-router"
 import classes from "./Login.css"
-import { icons } from './../../icons';
-import { produce } from 'immer';
-import logo from './logo.jpg'
+import { icons } from "./../../icons"
+import { produce } from "immer"
+import logo from "./logo.jpg"
 
 class Login extends Component {
-    loginForm = () => ({
-        name: "login",
-        elements: [
-            {
-                name: "email",
-                label: "Email",
-                icon: icons.envelope,
-                value: "",
-                isTouched: false,
-                isValid: false,
-                elementConfig: {
-                    type: "text",
-                    placeholder: "Email Address",
+    forms = {
+        "signup": () => ({
+            name: "signup",
+            elements: [
+                {
+                    name: "email",
+                    label: "Email",
+                    icon: icons.envelope,
+                    value: "",
+                    isTouched: false,
+                    isValid: false,
+                    elementConfig: {
+                        type: "text",
+                        placeholder: "Email Address",
+                    },
+                    validation: {
+                        isEmail: true,
+                        isRequired: true,
+                    },
                 },
-                validation: {
-                    isEmail: true,
-                    isRequired: true,
+                {
+                    name: "password",
+                    label: "Password",
+                    icon: icons.lock,
+                    value: "",
+                    isTouched: false,
+                    isValid: false,
+                    elementConfig: {
+                        type: "password",
+                        placeholder: "Password",
+                    },
+                    validation: {
+                        isEmail: false,
+                        isRequired: true,
+                    },
                 },
-            },
-            {
-                name: "password",
-                label: "Password",
-                icon: icons.lock,
-                value: "",
-                isTouched: false,
-                isValid: false,
-                elementConfig: {
-                    type: "password",
-                    placeholder: "Password",
+                {
+                    name: "retypePassword",
+                    label: "",
+                    icon: null,
+                    value: "",
+                    isTouched: false,
+                    isValid: false,
+                    elementConfig: {
+                        type: "password",
+                        placeholder: "Retype password",
+                    },
+                    validation: {
+                        isEmail: false,
+                        isRequired: true,
+                        mustMatch: "password",
+                    },
                 },
-                validation: {
-                    isEmail: false,
-                    isRequired: true,
+            ],
+            formIsValid: false,
+        }),
+        login: () => ({
+            name: "login",
+            elements: [
+                {
+                    name: "email",
+                    label: "Email",
+                    icon: icons.envelope,
+                    value: "",
+                    isTouched: false,
+                    isValid: false,
+                    elementConfig: {
+                        type: "text",
+                        placeholder: "Email Address",
+                    },
+                    validation: {
+                        isEmail: true,
+                        isRequired: true,
+                    },
                 },
-            },
-        ],
-        formIsValid: false,
-    })
-
-    signUpForm = () => ({
-        name: "signup",
-        elements: [
-            {
-                name: "email",
-                label: "Email",
-                icon: icons.envelope,
-                value: "",
-                isTouched: false,
-                isValid: false,
-                elementConfig: {
-                    type: "text",
-                    placeholder: "Email Address",
+                {
+                    name: "password",
+                    label: "Password",
+                    icon: icons.lock,
+                    value: "",
+                    isTouched: false,
+                    isValid: false,
+                    elementConfig: {
+                        type: "password",
+                        placeholder: "Password",
+                    },
+                    validation: {
+                        isEmail: false,
+                        isRequired: true,
+                    },
                 },
-                validation: {
-                    isEmail: true,
-                    isRequired: true,
-                },
-            },
-            {
-                name: "password",
-                label: "Password",
-                icon: icons.lock,
-                value: "",
-                isTouched: false,
-                isValid: false,
-                elementConfig: {
-                    type: "password",
-                    placeholder: "Password",
-                },
-                validation: {
-                    isEmail: false,
-                    isRequired: true,
-                },
-            },
-            {
-                name: "retypePassword",
-                label: "",
-                icon: null,
-                value: "",
-                isTouched: false,
-                isValid: false,
-                elementConfig: {
-                    type: "password",
-                    placeholder: "Retype password",
-                },
-                validation: {
-                    isEmail: false,
-                    isRequired: true,
-                    mustMatch: "password",
-                },
-            },
-        ],
-        formIsValid: false,
-    })
-
+            ],
+            formIsValid: false,
+        }),
+    }
     state = {
-        form: this.loginForm(),
+        form: this.forms["login"](),
         error: null,
     }
-
-    // onFormValidChanged = newValidValue => {
-    //     this.setState({ ...this.state, formIsValid: newValidValue })
-    // }
 
     onLoginButtonClickedHandler = event => {
         const email = this.state.form.elements.find(el => el.name === "email")
@@ -122,14 +118,29 @@ class Login extends Component {
         ).value
         this.setState({
             ...this.state,
-            isLoginLoading: true
+            isLoginLoading: true,
         })
-        this.props.loginUser(email, password, this.onUserLoggedInHandler)
+        this.props
+            .loginUser(email, password, this.onUserLoggedInHandler)
             .then(() => {
-                this.setState({...this.state, isLoginLoading: false})
+                this.setState({ ...this.state, isLoginLoading: false })
             })
-            .catch(() => {
-                this.setState({...this.state, isLoginLoading: false})
+            .catch((error) => {
+                let message = error.message
+                if (error.message.indexOf(" "))
+                    message = error.message.substr(
+                        0,
+                        error.message.indexOf(" ")
+                    )
+                console.log(error)
+                switch (message) {
+                    default:
+                        message =
+                            "There was an error signing up. Please try again in a moment."
+                        break
+                }
+
+                this.setState({ ...this.state, error: message, isLoginLoading: false })
             })
     }
 
@@ -153,21 +164,27 @@ class Login extends Component {
             .signupUser(email, password)
             .then(() => null)
             .catch(error => {
-                let message = error.message;
-                if(error.message.indexOf(' ')) message = error.message.substr(0, error.message.indexOf(' '))
+                let message = error.message
+                if (error.message.indexOf(" "))
+                    message = error.message.substr(
+                        0,
+                        error.message.indexOf(" ")
+                    )
                 console.log(error)
-                switch(message) {
-                    case 'EMAIL_EXISTS':
-                        message = "There is already an account with this email. Try logging in?"
-                        break;
-                    case 'WEAK_PASSWORD':
-                        message = "Please use a stronger password";
-                        break;
+                switch (message) {
+                    case "EMAIL_EXISTS":
+                        message =
+                            "There is already an account with this email. Try logging in?"
+                        break
+                    case "WEAK_PASSWORD":
+                        message = "Please use a stronger password"
+                        break
                     default:
-                        message = "There was an error signing up. Please try again in a moment."
-                        break;
+                        message =
+                            "There was an error signing up. Please try again in a moment."
+                        break
                 }
-                    this.setState({ ...this.state, error: message })
+                this.setState({ ...this.state, error: message })
             })
     }
 
@@ -178,16 +195,17 @@ class Login extends Component {
     onChangeFormClickedHandler = event => {
         event.preventDefault()
         if (this.state.form.name === "login") {
-            this.setState({ form: this.signUpForm() })
+            this.setState({ form: this.forms["signup"]() })
         } else {
-            this.setState({ form: this.loginForm() })
+            this.setState({ form: this.forms["login"]() })
         }
     }
 
     render() {
-        // const redirect = this.props.isLoggedIn ? <Redirect to="/app" /> : null
-        const redirect = null
-        const error = this.state.error;
+        const redirect = this.props.isLoggedIn ? <Redirect to="/app" /> : null
+        // const redirect = null
+
+        const error = this.state.error
         const form = (
             <div className={classes.Form}>
                 <div className={classes.Logo}>
@@ -199,18 +217,18 @@ class Login extends Component {
                     onFormUpdated={this.onFormUpdatedHandler}
                 />
                 {this.state.form.name === "login" ? (
-                        <Button
-                            type="submit"
-                            btnStyle="Success"
-                            extraClasses={[classes.LoginButton]}
-                            disabled={
-                                this.props.isLoggedIn ||
-                                !this.state.form.formIsValid
-                            }
-                            onClick={this.onLoginButtonClickedHandler}
-                        >
-                            Login
-                        </Button>
+                    <Button
+                        type="submit"
+                        btnStyle="Success"
+                        extraClasses={[classes.LoginButton]}
+                        disabled={
+                            this.props.isLoggedIn ||
+                            !this.state.form.formIsValid
+                        }
+                        onClick={this.onLoginButtonClickedHandler}
+                    >
+                        Login
+                    </Button>
                 ) : (
                     <Button
                         type="submit"

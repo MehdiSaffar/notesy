@@ -10,7 +10,7 @@ class NoteApp extends Component {
                 <div className={[classes.Split, classes.Left].join(" ")}>
                     <NoteList />
                 </div>
-                <div className={classes.Separator} />
+                {<div className={classes.Separator} /> }
                 <div className={[classes.Split, classes.Right].join(" ")}>
                     <NoteEditor />
                 </div>

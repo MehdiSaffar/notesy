@@ -43,11 +43,11 @@ export const loginUser = (email, password) => (dispatch, getState) => {
                 expiresIn: response.data.expiresIn,
             }
             dispatch(loginUserSuccess(authData))
-            return Promise.resolve()
+            return Promise.resolve(authData)
         })
         .catch(error => {
             dispatch(loginUserFail(error))
-            return Promise.reject()
+            return Promise.reject(error.response.data.error)
         })
 }
 
