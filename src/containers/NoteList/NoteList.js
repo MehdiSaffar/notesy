@@ -4,8 +4,13 @@ import { connect } from "react-redux"
 import NoteListItem from "./NoteListItem/NoteListItem"
 import classes from "./NoteList.css"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import Fuse from 'fuse.js'
+
 
 class NoteList extends Component {
+    state ={
+        searchText: ''
+    }
     componentDidMount() {
         this.props.getNotes()
     }
@@ -16,6 +21,25 @@ class NoteList extends Component {
 
     onAddNoteButtonClickedHandler = () => {
         this.props.addNote("", "")
+    }
+    onSearchBarChangedHandler = (event) => {
+        event.preventDefault();
+        this.setState( {
+            ...this.state,
+            searchText: event.target.value
+        })
+    }
+
+    getSearchResults = () => {
+        const searchOptions = {
+            shouldSort: true,
+            tokenize: true,
+            matchAllTokens: true,
+            keys: ['title', 'content', 'tags'],
+            // id: 'id'
+        }
+        const fuse = new Fuse(this.props.notes, searchOptions)
+        return fuse.search(this.state.searchText.trim())
     }
 
     render() {
@@ -28,10 +52,13 @@ class NoteList extends Component {
             </button>
         )
 
-        const toolbar = <div className={classes.Toolbar}>{addNoteButton}</div>
+        const searchBar = <input className={classes.SearchBar} onChange={this.onSearchBarChangedHandler} value={this.state.searchText}/>
+        const toolbar = <div className={classes.Toolbar}>{addNoteButton} {searchBar}</div>
 
-        const notes = this.props.notes ? (
-            this.props.notes.map(note => (
+        const finalNotes = this.state.searchText.trim() ? this.getSearchResults() : this.props.notes
+        console.log(this.getSearchResults())
+
+        const notes = finalNotes ? finalNotes.map(note => (
                 <NoteListItem
                     key={note.id}
                     title={note.title}
@@ -44,7 +71,7 @@ class NoteList extends Component {
                 >
                     {note.content}
                 </NoteListItem>
-            ))
+            )
         ) : (
             <p>No notes found</p>
         )
@@ -71,5 +98,6 @@ export default connect(
         setCurrentNote: actions.setCurrentNote,
         addNote: actions.addNote,
         deleteNote: actions.removeNote,
+        addTag: actions.addTag
     }
 )(NoteList)

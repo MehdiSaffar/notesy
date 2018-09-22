@@ -9,50 +9,119 @@ export const addNote = (title, content) => dispatch => {
     const fail = error => ({ type: actionTypes.ADD_NOTE_FAIL, error })
     const success = (id, title, content) => ({
         type: actionTypes.ADD_NOTE_SUCCESS,
-        id, title, content,
+        id,
+        title,
+        content,
     })
     dispatch(start())
-   
-    const noteData = {title, content}
 
-    axios.post(notesEndpoint + '.json', noteData)
-    .then(response => {
-        const id = response.data.name
-        dispatch(success(id, title, content))
-        dispatch(setCurrentNote(id))
-    })
-    .catch(error => dispatch(fail(error.response.data.error)))
+    const noteData = { title, content }
+
+    axios
+        .post(notesEndpoint + ".json", noteData)
+        .then(response => {
+            const id = response.data.name
+            dispatch(success(id, title, content))
+            dispatch(setCurrentNote(id))
+        })
+        .catch(error => dispatch(fail(error.response.data.error)))
 }
-export const removeNote = (id) => (dispatch, getState) => {
-    const {title, content} = getState().note.notes.find(el => el.id === id)
-    if(title === '' && content === '' && getState().note.notes.length === 1) return
-    dispatch(updateStatus('Removing note...'))
-    const start = () => ({ type: actionTypes.REMOVE_NOTE_START, id})
+
+export const addTag = (id, tags) => dispatch => {
+    const start = () => ({ type: actionTypes.ADD_TAG_START })
+    const fail = error => ({ type: actionTypes.ADD_TAG_FAIL, error })
+    const success = (id, tags) => ({
+        type: actionTypes.ADD_TAG_SUCCESS,
+        id,
+        tags,
+    })
+    dispatch(start())
+
+    const url = notesEndpoint + "/" + id
+
+    axios
+        .get(url + "/tags.json")
+        .then(response => {
+            const existingTags = response.data || []
+            const noteData = {
+                tags: existingTags.concat(tags),
+            }
+            axios.patch(url + ".json", noteData).then(response => {
+                dispatch(success(id, noteData.tags))
+            })
+        })
+
+        .catch(error => dispatch(fail(error.response.data.error)))
+}
+
+export const deleteTag = (id, tag) => (dispatch, getState) => {
+    dispatch(updateStatus("Removing tag..."))
+    const start = () => ({ type: actionTypes.REMOVE_TAG_START, id })
+    const fail = error => ({ type: actionTypes.REMOVE_TAG_FAIL, error })
+    const success = ts => ({
+        type: actionTypes.REMOVE_TAG_SUCCESS,
+        id,
+        tags: ts,
+    })
+    dispatch(start())
+
+    const url = notesEndpoint + "/" + id
+    axios.get(url + "/tags.json").then(response => {
+        console.log("response: ", response)
+        const existingTags = response.data
+        const noteData = {
+            tags: existingTags.filter(t => t !== tag),
+        }
+        console.log("noteData: ", noteData)
+        axios
+            .patch(url + ".json", noteData)
+            .then(response => {
+                dispatch(success(noteData.tags))
+            })
+            .catch(error => {
+                console.log(error)
+                dispatch(fail(error.response.data.error))
+            })
+    }).catch(err => {
+        console.log(err)
+        dispatch(fail(err.response.data.error))
+    })
+}
+export const removeNote = id => (dispatch, getState) => {
+    const { title, content } = getState().note.notes.find(el => el.id === id)
+    if (title === "" && content === "" && getState().note.notes.length === 1)
+        return
+    dispatch(updateStatus("Removing note..."))
+    const start = () => ({ type: actionTypes.REMOVE_NOTE_START, id })
     const fail = error => ({ type: actionTypes.REMOVE_NOTE_FAIL, error })
     const success = (id, title, content) => ({
         type: actionTypes.REMOVE_NOTE_SUCCESS,
-        id, title, content,
+        id,
+        title,
+        content,
     })
     dispatch(start())
 
-    axios.delete(notesEndpoint + "/" + id + ".json")
-    .then(response => {
-        dispatch(success(id))
-        dispatch(updateStatus())
-        if(getState().note.notes.length) {
-            const goodId = getState().note.notes[getState().note.notes.length - 1].id
-            dispatch(setCurrentNote(goodId))
-        } else {
-            dispatch(addNote('', ''))
-        }
-    })
-    .catch(error => {
-        console.log(error)
-        dispatch(fail(error.response.data.error))
-    })
+    axios
+        .delete(notesEndpoint + "/" + id + ".json")
+        .then(response => {
+            dispatch(success(id))
+            dispatch(updateStatus())
+            if (getState().note.notes.length) {
+                const goodId = getState().note.notes[
+                    getState().note.notes.length - 1
+                ].id
+                dispatch(setCurrentNote(goodId))
+            } else {
+                dispatch(addNote("", ""))
+            }
+        })
+        .catch(error => {
+            console.log(error)
+            dispatch(fail(error.response.data.error))
+        })
 }
 export const getNote = noteId => ({ type: actionTypes.GET_NOTE, noteId })
-
 
 export const getNotes = () => dispatch => {
     const getNotesStart = () => ({ type: actionTypes.GET_NOTES_START })
@@ -69,12 +138,18 @@ export const getNotes = () => dispatch => {
         .then(response => {
             // console.log(response.data)
             const keys = Object.keys(response.data)
-            const arr = keys.map(key => ({
-                id: key,
-                title: response.data[key].title,
-                content: response.data[key].content,
-            }))
-            console.log(arr)
+            const arr = keys.map(key => {
+                console.log("thing:", response.data[key].tags)
+                return {
+                    id: key,
+                    title: response.data[key].title,
+                    content: response.data[key].content,
+                    tags: response.data[key].tags
+                        ? response.data[key].tags
+                        : [],
+                }
+            })
+            console.log("arr:", arr)
             dispatch(getNotesSuccess(arr))
             dispatch(setCurrentNote(arr[0].id))
         })
@@ -86,7 +161,7 @@ export const getNotes = () => dispatch => {
 
 // // CURRENT NOTE
 export const updateCurrentNote = (title, content) => dispatch => {
-    dispatch(({ type: actionTypes.UPDATE_CURRENT_NOTE, title, content }))
+    dispatch({ type: actionTypes.UPDATE_CURRENT_NOTE, title, content })
     return Promise.resolve({
         title,
         content,
@@ -98,7 +173,7 @@ export const setCurrentNote = id => ({
     id: id,
 })
 export const saveNote = (id, title, content) => dispatch => {
-    dispatch(updateStatus('Saving note...'))
+    dispatch(updateStatus("Saving note..."))
     const saveNoteStart = (id, title, content) => ({
         type: actionTypes.SAVE_NOTE_START,
         id,
@@ -122,4 +197,7 @@ export const saveNote = (id, title, content) => dispatch => {
         .catch(error => dispatch(saveNoteFail(error.response.data.error)))
 }
 
-export const updateStatus = (status = '') => ({type: actionTypes.NOTE_UPDATE_STATUS, status})
+export const updateStatus = (status = "") => ({
+    type: actionTypes.NOTE_UPDATE_STATUS,
+    status,
+})
