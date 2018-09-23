@@ -6,7 +6,7 @@ const input = props => {
     let element = null
     let inputClasses = [classes.InputElement]
 
-    const { shouldValidate, isValid, ...config } = props
+    const { shouldValidate, isValid, divClass, ...config } = props
 
     if (shouldValidate && !isValid) {
         inputClasses.push(classes.Invalid)
@@ -41,7 +41,7 @@ const input = props => {
     }
 
     return (
-        <div className={classes.Input}>
+        <div className={[classes.Input, divClass].join(' ')}>
             {props.icon && <FontAwesomeIcon icon={props.icon} />}
             {props.label && <label className={classes.Label}>{props.label + ':'}</label>}
             {element}

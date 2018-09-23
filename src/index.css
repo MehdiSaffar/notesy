@@ -9,5 +9,8 @@ body {
     --darker-blue: rgb(84, 144, 201);
     --blue: rgb(109, 184, 255);
     --lighter-blue: rgb(206, 231, 255);
+
     --toolbar-icon-size: 1.4em;
+    --input-border-radius: 12px;
+    --toolbar-icon-border-radius: 12px;
 }

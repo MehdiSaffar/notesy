@@ -5,6 +5,8 @@ import NoteListItem from "./NoteListItem/NoteListItem"
 import classes from "./NoteList.css"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Fuse from "fuse.js"
+import ToolbarInput from "./../../components/UI/Form/Input/ToolbarInput"
+import ToolbarButton from "./../../components/UI/Form/Button/ToolbarButton"
 
 class NoteList extends Component {
     state = {
@@ -45,18 +47,22 @@ class NoteList extends Component {
     }
 
     render() {
+        // const addNoteButton = (
+        //     <button
+        //         className={classes.AddNote}
+        //         onClick={this.onAddNoteButtonClickedHandler}
+        //     >
+        //     </button>
+        // )
         const addNoteButton = (
-            <button
-                className={classes.AddNote}
-                onClick={this.onAddNoteButtonClickedHandler}
-            >
+            <ToolbarButton extraClass={classes.AddNote} onClick={this.onAddNoteButtonClickedHandler}>
                 <FontAwesomeIcon icon="plus-circle" fixedWidth />
-            </button>
+            </ToolbarButton>
         )
 
         const searchBar = (
-            <input
-                className={classes.SearchBar}
+            <ToolbarInput
+                extraClass={classes.SearchBar}
                 onChange={this.onSearchBarChangedHandler}
                 value={this.state.searchText}
                 placeholder="Search notes..."
@@ -64,7 +70,8 @@ class NoteList extends Component {
         )
         const toolbar = (
             <div className={classes.Toolbar}>
-                {addNoteButton} {searchBar}
+                {searchBar}
+                {addNoteButton}
             </div>
         )
 

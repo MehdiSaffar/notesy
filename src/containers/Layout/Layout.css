@@ -15,10 +15,9 @@
 }
 
 .Content {
-    /* background-color: brown; */
     width: 100%;
-    flex: 1 1 auto;
-    overflow: hidden;
+    flex: 1 1 100%;
+    overflow: auto;
     min-height: 200px;
 }
 

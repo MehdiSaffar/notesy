@@ -4,6 +4,8 @@ import classes from "./NoteEditor.css"
 import { connect } from "react-redux"
 import * as actions from "../../store/actions/index"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import ToolbarInput from "./../../components/UI/Form/Input/ToolbarInput"
+import ToolbarButton from './../../components/UI/Form/Button/ToolbarButton';
 
 // Changing a note data triggers a timer with SAVE_TIME amount in milliseconds to trigger a save
 const SAVE_TIME = 150
@@ -195,12 +197,12 @@ class NoteEditor extends Component {
 
     render() {
         const deleteNoteButton = (
-            <button
-                className={classes.ToolIcon}
+            <ToolbarButton
+                extraClass={classes.ToolIcon}
                 onClick={() => this.onDeleteNoteClickedHandler()}
             >
                 <FontAwesomeIcon icon={"trash"} fixedWidth />
-            </button>
+            </ToolbarButton>
         )
         const tags =
             this.props.tags &&
@@ -214,9 +216,22 @@ class NoteEditor extends Component {
                 </div>
             ))
 
+        // const tagInput = (
+        //     <input
+        //         className={classes.TagInput}
+        //         value={this.state.tagInput}
+        //         onChange={event =>
+        //             this.setState({
+        //                 ...this.state,
+        //                 tagInput: event.target.value,
+        //             })
+        //         }
+        //         onKeyUp={this.onTagInputKeyUpHandler}
+        //         placeholder="Add tag here..."
+        //     />
+        // )
         const tagInput = (
-            <input
-                className={classes.TagInput}
+            <ToolbarInput
                 value={this.state.tagInput}
                 onChange={event =>
                     this.setState({
@@ -225,7 +240,7 @@ class NoteEditor extends Component {
                     })
                 }
                 onKeyUp={this.onTagInputKeyUpHandler}
-                placeholder="Add tag here..."
+                placeholder="Add tag..."
             />
         )
 

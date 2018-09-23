@@ -1,0 +1,9 @@
+
+.ToolbarInput {
+    outline: 0;
+    border-radius: var(--input-border-radius);
+    border: var(--lighter-blue) 2px solid;
+    box-sizing: border-box;
+    padding: 2px;
+    color: #888;
+}

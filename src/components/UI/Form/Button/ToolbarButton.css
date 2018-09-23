@@ -1,0 +1,18 @@
+
+.ToolbarButton {
+    display: block;
+    margin: 0;
+    font-size: var(--toolbar-icon-size);
+    box-sizing: border-box;
+    border: none;
+    background-color: transparent;
+    padding: 0px 5px;
+    border-radius: var(--toolbar-icon-border-radius);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.ToolbarButton:hover {
+    background-color: var(--lighter-blue);
+    transition: all 0.2s ease-in-out;
+}

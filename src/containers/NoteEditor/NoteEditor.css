@@ -13,21 +13,9 @@
     display: flex;
 }
 
-.ToolIcon {
+.ToolIcon.ToolIcon {
     flex: 0 0 auto;
-    font-size: var(--toolbar-icon-size);
-    box-sizing: border-box;
-    padding: 0px 5px;
-
-    background-color: transparent;
-    outline: none;
-    border: none;
-    transition: all 0.2s ease-in-out;
-}
-.ToolIcon:hover {
-    background-color: var(--lighter-blue);
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    margin: 0px 8px;
 }
 
 .Title {
@@ -39,6 +27,7 @@
     padding: 2px 10px;
     box-sizing: border-box;
     border: none;
+    outline:none;
 }
 
 .Content {
@@ -49,6 +38,7 @@
     padding: 2px 10px;
     box-sizing: border-box;
     resize: none;
+    outline:none;
 }
 
 .Tag {
@@ -58,14 +48,6 @@
     border-radius: 4px;
     padding: 2px 4px;
     margin: 2px;
-}
-
-.TagInput {
-    outline: 0;
-    border-radius: 5px;
-    border: var(--lighter-blue) 2px solid;
-    padding: 2px;
-    color: #888;
 }
 
 .Title, .Content {
