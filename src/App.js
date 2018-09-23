@@ -5,6 +5,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { icons } from "./icons"
 import { connect } from "react-redux"
 import * as actions from "./store/actions/index"
+import { withRouter } from 'react-router';
 // library.add(...fontAwesome)
 
 var ic = Object.keys(icons).map(iconName => icons[iconName])
@@ -19,9 +20,9 @@ class App extends Component {
     }
 }
 
-export default connect(
+export default withRouter(connect(
     null,
     {
         checkTokenLocalStorage: actions.checkTokenLocalStorage,
     }
-)(App)
+)(App))
