@@ -1,0 +1,48 @@
+.Login {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    background-color: var(--darker-blue);
+}
+
+.Form {
+    width: 80%;
+    max-width: 500px;
+    margin: auto auto;
+    text-align: center;
+    border: 6px var(--blue) solid;
+    border-radius: 10px;
+    background-color: white;
+    box-sizing: border-box;
+    transition: max-height 0.2s;
+}
+
+.Logo {
+    width: 300px;
+    transform: rotateZ(10deg);
+    margin: auto;
+    margin-top: 30px;
+}
+
+.Logo img {
+    width: 100%;
+    height: 100%;
+}
+
+.LoginButton {
+    display: block;
+    margin: auto;
+    width: 80%;
+    max-width: calc(0.7 * 500px);
+    transition: max-width 0.4s, border-radius 0.4s, background-color 0.4s, color 0.4s;
+}
+
+.LoginButton:hover:not(:disabled) {
+    border-radius: 30px;
+    content: none;
+    background-color: rgb(42, 190, 75);
+    color: white;
+    max-width: calc(0.2 * 500px);
+    transition: max-width 0.4s, border-radius 0.4s, background-color 0.4s, color 0.4s;
+}
+

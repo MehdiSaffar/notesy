@@ -1,0 +1,35 @@
+.Container {
+    padding: 0px;
+    margin: 0px;
+    overflow: hidden;
+}
+
+.Container p {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+:global .fade-enter {
+  opacity: 0.01;
+  max-height: 0.01em;
+}
+
+:global .fade-enter.fade-enter-active {
+  opacity: 1;
+  max-height: 1.2em;
+  transition: opacity 150ms ease-in;
+  transition: max-height 150ms ease-in;
+}
+
+:global .fade-leave {
+  opacity: 1;
+  max-height: 1.2em;
+}
+
+:global .fade-leave.fade-leave-active {
+  opacity: 0.01;
+  max-height: 0.01em;
+  transition: opacity 150ms ease-in;
+  transition: max-height 150ms ease-in;
+}

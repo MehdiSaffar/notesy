@@ -1,0 +1,73 @@
+.NoteEditor {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.Toolbar {
+    flex: 0 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 2px;
+    border-bottom: 2px var(--blue) solid;
+    display: flex;
+}
+
+.ToolIcon {
+    flex: 0 0 auto;
+    font-size: var(--toolbar-icon-size);
+    box-sizing: border-box;
+    padding: 0px 5px;
+
+    background-color: transparent;
+    outline: none;
+    border: none;
+    transition: all 0.2s ease-in-out;
+}
+.ToolIcon:hover {
+    background-color: var(--lighter-blue);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.Title {
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 2em;
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 2px 10px;
+    box-sizing: border-box;
+    border: none;
+}
+
+.Content {
+    font-family: inherit;
+    flex: 1 0 auto;
+    border: none;
+    margin: 0;
+    padding: 2px 10px;
+    box-sizing: border-box;
+    resize: none;
+}
+
+.Tag {
+    display: inline-block;
+    background-color: #333;
+    color: #eee;
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin: 2px;
+}
+
+.TagInput {
+    outline: 0;
+    border-radius: 5px;
+    border: var(--lighter-blue) 2px solid;
+    padding: 2px;
+    color: #888;
+}
+
+.Title, .Content {
+    margin-left: 20px;
+}
