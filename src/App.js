@@ -20,9 +20,9 @@ class App extends Component {
     }
 }
 
-export default withRouter(connect(
+export default connect(
     null,
     {
         checkTokenLocalStorage: actions.checkTokenLocalStorage,
     }
-)(App))
+)(App)
