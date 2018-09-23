@@ -2,6 +2,10 @@ import actionTypes from "./actionTypes"
 import * as authUtil from "./../../shared/authUtility"
 import axios from "axios"
 
+export const checkTokenLocalStorage = () => ({
+    type: actionTypes.CHECK_TOKEN_LOCAL_STORAGE
+})
+
 export const loginUserStart = (email, password) => ({
     type: actionTypes.LOGIN_USER_START,
     email: email,

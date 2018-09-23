@@ -25,7 +25,7 @@ const noteListItem = props => {
             ) : (
                 <Fragment>
                     <h3 className={classes.Title}>{title}</h3>
-                    {content}
+                    <p>{content}</p>
                 </Fragment>
             )}
         </div>

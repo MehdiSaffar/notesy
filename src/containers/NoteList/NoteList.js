@@ -15,7 +15,7 @@ class NoteList extends Component {
     }
 
     onNoteListItemClickedHandler = id => {
-        this.props.setCurrentNote(id)
+        if(this.props.currentNote.id !== id) this.props.setCurrentNote(id)
     }
 
     onAddNoteButtonClickedHandler = () => {

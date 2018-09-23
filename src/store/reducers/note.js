@@ -1,5 +1,6 @@
 import actionTypes from "../actions/actionTypes"
 import { produce } from "immer"
+import { checkTokenLocalStorage } from "../actions";
 
 const initialState = {
     notes: [],
@@ -25,6 +26,7 @@ export default (state = initialState, action) => {
     const toCall = map[action.type]
     return toCall ? toCall(state, action) : state
 }
+
 
 const resetNotes = (state, action) => ({...initialState})
 

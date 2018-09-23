@@ -48,12 +48,12 @@ export const addTag = (id, tags) => (dispatch, getState) => {
             const noteData = {
                 tags: existingTags.concat(tags),
             }
-            axios.patch(url + ".json", noteData).then(response => {
+            axios.patch(url + ".json?auth=" + getState().auth.idToken, noteData).then(response => {
                 dispatch(success(id, noteData.tags))
             })
+        .catch(error => dispatch(fail(error.response)))
         })
-
-        .catch(error => dispatch(fail(error.response.data.error)))
+        .catch(error => dispatch(fail(error.response)))
 }
 
 export const deleteTag = (id, tag) => (dispatch, getState) => {
@@ -68,7 +68,7 @@ export const deleteTag = (id, tag) => (dispatch, getState) => {
     dispatch(start())
 
     const url = notesEndpoint + "/" + id
-    axios.get(url + "/tags.json").then(response => {
+    axios.get(url + "/tags.json?auth=" + getState().auth.idToken).then(response => {
         console.log("response: ", response)
         const existingTags = response.data
         const noteData = {
@@ -76,7 +76,7 @@ export const deleteTag = (id, tag) => (dispatch, getState) => {
         }
         console.log("noteData: ", noteData)
         axios
-            .patch(url + ".json", noteData)
+            .patch(url + ".json?auth=" + getState().auth.idToken, noteData)
             .then(response => {
                 dispatch(success(noteData.tags))
             })

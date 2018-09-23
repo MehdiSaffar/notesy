@@ -3,6 +3,7 @@
     display: block;
     border-bottom: 3px solid var(--lighter-blue);
     border-right: 2px solid var(--lighter-blue);
+    background-color: white;
     font-family: inherit;
     box-sizing: border-box;
     padding: 7px;
@@ -13,11 +14,17 @@
     position: relative;
     min-height: 100px;
     border-radius: 10px;
-    transition: transform 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
 }
 
 .NoteListItem:first-of-type {
     margin-top: 0px;
+}
+
+.NoteListItem:hover {
+    background-color: rgb(220, 238, 255);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
 }
 
 .Selected {

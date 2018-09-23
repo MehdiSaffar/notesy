@@ -121,7 +121,7 @@ class Login extends Component {
             isLoginLoading: true,
         })
         this.props
-            .loginUser(email, password, this.onUserLoggedInHandler)
+            .loginUser(email, password)
             .then(() => {
                 this.setState({ ...this.state, isLoginLoading: false })
             })
@@ -190,8 +190,6 @@ class Login extends Component {
 
     onUserSignedUpHandler = () => {}
 
-    onUserLoggedInHandler = () => {}
-
     onChangeFormClickedHandler = event => {
         event.preventDefault()
         if (this.state.form.name === "login") {
@@ -203,7 +201,6 @@ class Login extends Component {
 
     render() {
         const redirect = this.props.isLoggedIn ? <Redirect to="/app" /> : null
-        // const redirect = null
 
         const error = this.state.error
         const form = (

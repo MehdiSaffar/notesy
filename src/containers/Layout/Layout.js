@@ -55,6 +55,7 @@ class Layout extends Component {
 const mapStateToProps = state => ({
     isLoggedIn: state.auth.isLoggedIn,
     status: state.note.status,
+    email: state.auth.email,
 })
 
 export default withRouter(
