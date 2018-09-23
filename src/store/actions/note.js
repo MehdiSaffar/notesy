@@ -161,17 +161,19 @@ export const addTag = (id, tags, idToken) => async (dispatch, getState) => {
 export const deleteTag = (id, tag, idToken) => async (dispatch, getState) => {
     const start = () => ({ type: actionTypes.DELETE_TAG_START, id })
     const fail = error => ({ type: actionTypes.DELETE_TAG_FAIL, error })
-    const success = ts => ({
+    const success = tags => ({
         type: actionTypes.DELETE_TAG_SUCCESS,
         id,
-        tags: ts,
+        tags
     })
     try {
         dispatch(updateStatus("Deleting tag..."))
         dispatch(start())
         const newTags = await firebase.deleteTag(tag, id, idToken)
+        dispatch(updateStatus())
         dispatch(success(newTags))
     } catch (error) {
+        console.log(error)
         dispatch(fail(error))
     }
 }
