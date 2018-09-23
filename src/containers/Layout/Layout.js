@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react"
+import React, { Component} from "react"
 import { Switch, Route, Redirect } from "react-router"
 import Login from "../Login/Login"
 import MainPage from "../MainPage/MainPage"

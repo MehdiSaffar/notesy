@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react"
+import React, { Component } from "react"
 import Form from "./../../components/UI/Form/Form"
 import Button from "./../../components/UI/Form/Button/Button"
 import * as actions from "../../store/actions/index"
@@ -6,7 +6,6 @@ import { connect } from "react-redux"
 import { Redirect } from "react-router"
 import classes from "./Login.css"
 import { icons } from "./../../icons"
-import { produce } from "immer"
 import logoImg from "./logo.jpg"
 
 class Login extends Component {
