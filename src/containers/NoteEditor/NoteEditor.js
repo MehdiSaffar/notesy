@@ -102,7 +102,6 @@ class NoteEditor extends Component {
     }
 
     onDeleteNoteClickedHandler = () => {
-        console.log(this.props.deleteNote)
         this.props.deleteNote(this.state.id, this.props.idToken)
     }
     onRemoveTagClickedHandler = tag => {

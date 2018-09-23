@@ -3,104 +3,92 @@ import * as authUtil from "./../../shared/authUtility"
 import axios from "axios"
 
 export const checkTokenLocalStorage = () => ({
-    type: actionTypes.CHECK_TOKEN_LOCAL_STORAGE
-})
-
-export const loginUserStart = (email, password) => ({
-    type: actionTypes.LOGIN_USER_START,
-    email: email,
-    password: password,
-})
-
-export const loginUserSuccess = authData => ({
-    type: actionTypes.LOGIN_USER_SUCCESS,
-    ...authData,
-})
-
-export const loginUserFail = error => ({
-    type: actionTypes.LOGIN_USER_FAIL,
-    error,
+    type: actionTypes.CHECK_TOKEN_LOCAL_STORAGE,
 })
 
 export const logoutUser = () => dispatch => {
-    dispatch({type: actionTypes.RESET_NOTES})
-
+    dispatch({ type: actionTypes.RESET_NOTES })
     dispatch({
         type: actionTypes.LOGOUT_USER,
     })
 }
 
-export const loginUser = (email, password) => (dispatch, getState) => {
-    dispatch(loginUserStart(email, password))
-
-    let url = authUtil.getFirebaseVerifyPasswordUrl(getState().auth.apiKey)
-
-    const authData = {
+export const loginUser = (email, password) => async (dispatch, getState) => {
+    const start = (email, password) => ({
+        type: actionTypes.LOGIN_USER_START,
         email: email,
         password: password,
-        returnSecureToken: true,
+    })
+    const fail = error => ({
+        type: actionTypes.LOGIN_USER_FAIL,
+        error,
+    })
+    const success = authData => ({
+        type: actionTypes.LOGIN_USER_SUCCESS,
+        ...authData,
+    })
+    try {
+        dispatch(start(email, password))
+        const authData = {
+            email: email,
+            password: password,
+            returnSecureToken: true,
+        }
+        const url = authUtil.getFirebaseVerifyPasswordUrl(
+            getState().auth.apiKey
+        )
+        const response = await axios.post(url, authData)
+        const receivedAuthData = {
+            email: response.data.email,
+            idToken: response.data.idToken,
+            localId: response.data.localId,
+            expiresIn: response.data.expiresIn,
+        }
+        dispatch(success(receivedAuthData))
+        return receivedAuthData
+    } catch (error) {
+        dispatch(fail(error))
+        console.log(error)
+        return error.response.data.error
     }
-
-    return axios
-        .post(url, authData)
-        .then(response => {
-            const authData = {
-                email: response.data.email,
-                idToken: response.data.idToken,
-                localId: response.data.localId,
-                expiresIn: response.data.expiresIn,
-            }
-            dispatch(loginUserSuccess(authData))
-            return Promise.resolve(authData)
-        })
-        .catch(error => {
-            dispatch(loginUserFail(error))
-            return Promise.reject(error.response.data.error)
-        })
 }
 
-export const signupUserStart = (email, password) => ({
-    type: actionTypes.SIGNUP_USER_START,
-    email,
-    password,
-})
+export const signupUser = (email, password) => async (dispatch, getState) => {
+    const start = (email, password) => ({
+        type: actionTypes.SIGNUP_USER_START,
+        email,
+        password,
+    })
+    const success = authData => ({
+        type: actionTypes.SIGNUP_USER_SUCCESS,
+        ...authData,
+    })
+    const fail = error => ({
+        type: actionTypes.SIGNUP_USER_FAIL,
+        error,
+    })
+    try {
+        dispatch(start(email, password))
 
-export const signupUserSuccess = authData => ({
-    type: actionTypes.SIGNUP_USER_SUCCESS,
-    ...authData,
-})
+        const url = authUtil.getFirebaseSignupNewUser(getState().auth.apiKey)
 
-export const signupUserFail = error => ({
-    type: actionTypes.SIGNUP_USER_FAIL,
-    error,
-})
-
-export const signupUser = (email, password) => (dispatch, getState) => {
-    dispatch(signupUserStart(email, password))
-
-    let url = authUtil.getFirebaseSignupNewUser(getState().auth.apiKey)
-
-    const authData = {
-        email: email,
-        password: password,
-        returnSecureToken: true,
+        const authData = {
+            email: email,
+            password: password,
+            returnSecureToken: true,
+        }
+        const response = await axios.post(url, authData)
+        const receivedAuthData = {
+            email: response.data.email,
+            idToken: response.data.idToken,
+            localId: response.data.localId,
+            expiresIn: response.data.expiresIn,
+        }
+        dispatch(success(receivedAuthData))
+        return receivedAuthData
+    } catch (error) {
+        dispatch(fail(error.response.data.error))
+        console.log(error)
+        throw error.response.data.error
     }
-
-    return axios
-        .post(url, authData)
-        .then(response => {
-            // console.log(response.data)
-            const authData = {
-                email: response.data.email,
-                idToken: response.data.idToken,
-                localId: response.data.localId,
-                expiresIn: response.data.expiresIn,
-            }
-            dispatch(signupUserSuccess(authData))
-            return Promise.resolve(authData)
-        })
-        .catch(error => {
-            dispatch(signupUserFail(error.response.data.error))
-            return Promise.reject(error.response.data.error)
-        })
 }

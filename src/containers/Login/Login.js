@@ -110,7 +110,7 @@ class Login extends Component {
         error: null,
     }
 
-    onLoginButtonClickedHandler = event => {
+    onLoginButtonClickedHandler = async event => {
         const email = this.state.form.elements.find(el => el.name === "email")
             .value
         const password = this.state.form.elements.find(
@@ -120,32 +120,34 @@ class Login extends Component {
             ...this.state,
             isLoginLoading: true,
         })
-        this.props
-            .loginUser(email, password)
-            .then(() => {
-                this.setState({ ...this.state, isLoginLoading: false })
-            })
-            .catch(error => {
-                let message = error.message
-                if (error.message.indexOf(" "))
-                    message = error.message.substr(
-                        0,
-                        error.message.indexOf(" ")
-                    )
-                // console.log(error)
-                switch (message) {
-                    default:
-                        message =
-                            "There was an error signing up. Please try again in a moment."
-                        break
-                }
+        try {
+            await this.props.loginUser(email, password)
+            this.setState({ ...this.state, isLoginLoading: false })
+        } catch (error) {
+            // let message = error.response.data.error.message
+            // if (error.message.indexOf(" "))
+            //     message = error.message.substr(
+            //         0,
+            //         error.message.indexOf(" ")
+            //     )
+            // console.log(error)
+            let message =
+                "There was an error signing up. Please try again in a moment."
+            switch (error.message) {
+                case "EMAIL_EXISTS":
+                    message = "The email entered already exists!"
+                    break
+                default:
+                    break
+            }
+            console.log(message)
 
-                this.setState({
-                    ...this.state,
-                    error: message,
-                    isLoginLoading: false,
-                })
+            this.setState({
+                ...this.state,
+                error: message,
+                isLoginLoading: false,
             })
+        }
     }
 
     onLogoutButtonClickedHandler = event => {
@@ -158,41 +160,31 @@ class Login extends Component {
         })
     }
 
-    onSignupButtonClickedHandler = event => {
+    onSignupButtonClickedHandler = async (event) => {
         const email = this.state.form.elements.find(el => el.name === "email")
             .value
         const password = this.state.form.elements.find(
             el => el.name === "password"
         ).value
-        this.props
-            .signupUser(email, password)
-            .then(() => null)
-            .catch(error => {
-                let message = error.message
-                if (error.message.indexOf(" "))
-                    message = error.message.substr(
-                        0,
-                        error.message.indexOf(" ")
-                    )
-                // console.log(error)
-                switch (message) {
-                    case "EMAIL_EXISTS":
-                        message =
-                            "There is already an account with this email. Try logging in?"
-                        break
-                    case "WEAK_PASSWORD":
-                        message = "Please use a stronger password"
-                        break
-                    default:
-                        message =
-                            "There was an error signing up. Please try again in a moment."
-                        break
-                }
-                this.setState({ ...this.state, error: message })
-            })
+        try {
+            await this.props.signupUser(email, password)
+        } catch (error) {
+            let message =
+                "There was an error signing up. Please try again in a moment."
+            switch (error.message) {
+                case "EMAIL_EXISTS":
+                    message =
+                        "There is already an account with this email. Try logging in?"
+                    break
+                case "WEAK_PASSWORD":
+                    message = "Please use a stronger password"
+                    break
+                default:
+                    break
+            }
+            this.setState({ ...this.state, error: message })
+        }
     }
-
-    onUserSignedUpHandler = () => {}
 
     onChangeFormClickedHandler = event => {
         event.preventDefault()

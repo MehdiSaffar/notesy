@@ -95,7 +95,7 @@ class Form extends Component {
             isEmail: "The email entered is formatted incorrectly.",
             isRequired: "This field is required",
             mustMatch: "This field must match " + error.target,
-        })[error.code] || ("Unknown error " + error.code)
+        }[error.code] || "Unknown error " + error.code)
 
     render() {
         return this.props.form.elements.map((formElement, index) => {
@@ -107,16 +107,14 @@ class Form extends Component {
                         transitionLeaveTimeout={300}
                     >
                         {formElement.errors &&
-                            formElement.errors.map(inputError => {
-                                return (
-                                    <p
-                                        key={inputError.code}
-                                        className={classes.InputErrors}
-                                    >
-                                        {this.prettyErrorMessage(inputError)}
-                                    </p>
-                                )
-                            })}
+                            formElement.errors.map(inputError => (
+                                <p
+                                    key={inputError.code}
+                                    className={classes.InputErrors}
+                                >
+                                    {this.prettyErrorMessage(inputError)}
+                                </p>
+                            ))}
                     </ReactCSSTransitionGroup>
                 </div>
             )
