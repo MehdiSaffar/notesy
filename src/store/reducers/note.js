@@ -1,6 +1,5 @@
 import actionTypes from "../actions/actionTypes"
 import { produce } from "immer"
-import { checkTokenLocalStorage } from "../actions";
 
 const initialState = {
     notes: [],
@@ -16,7 +15,7 @@ export default (state = initialState, action) => {
         [actionTypes.ADD_TAG_SUCCESS]: addTag,
         [actionTypes.REMOVE_NOTE_START]: removeNoteStart,
         [actionTypes.REMOVE_NOTE_SUCCESS]: removeNote,
-        [actionTypes.REMOVE_TAG_SUCCESS]: removeTag,
+        [actionTypes.DELETE_TAG_SUCCESS]: deleteTag,
         // [actionTypes.GET_NOTE]: getNote,
         [actionTypes.GET_NOTES_SUCCESS]: getNotes,
         [actionTypes.UPDATE_CURRENT_NOTE]: updateCurrentNote,
@@ -51,7 +50,7 @@ const addTag = (state, action) => produce(state, draftState => {
     draftState.notes.find(el => el.id === action.id).tags = action.tags
     draftState.currentNote.tags = action.tags;
 })
-const removeTag = (state, action) => produce(state, draftState => {
+const deleteTag = (state, action) => produce(state, draftState => {
     draftState.notes.find(el => el.id === action.id).tags = action.tags
     draftState.currentNote.tags = action.tags;
 })

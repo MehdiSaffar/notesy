@@ -87,22 +87,17 @@ class Form extends Component {
         this.props.onFormUpdated(updatedForm)
     }
 
+    prettyErrorMessage = error =>
+        ({
+            minLength: "Should be at least " + error.minLength + " long",
+            maxLength: "Should be at least " + error.maxLength + " long",
+            isNumeric: "Should be composed of digits only",
+            isEmail: "The email entered is formatted incorrectly.",
+            isRequired: "This field is required",
+            mustMatch: "This field must match " + error.target,
+        })[error.code] || ("Unknown error " + error.code)
+
     render() {
-        // let changeHappened = false
-        // const updatedForm = produce(this.props.form, dForm => {
-        //   for(let key in dForm.elements) {
-        //     dForm.elements[key].isValid = this.checkInputValidity(dForm.elements[key].value, dForm.elements[key].validation)
-        //   }
-        //   let newValid = this.checkFormValidity(dForm.elements)
-        //   if(this.props.form.formIsValid !== newValid) {
-        //     dForm.formIsValid = newValid
-        //   }
-        // })
-
-        // if(changeHappened) {
-        //     this.props.onFormUpdated(updatedForm)
-        // }
-
         return this.props.form.elements.map((formElement, index) => {
             const errors = (
                 <div className={classes.Container}>
@@ -112,49 +107,13 @@ class Form extends Component {
                         transitionLeaveTimeout={300}
                     >
                         {formElement.errors &&
-                            formElement.errors.map((inputError, index) => {
-                                const prettyErrorMessage = error => {
-                                    // errors.push({ code: "minLength" })
-                                    // errors.push({ code: "maxLength" })
-                                    // errors.push({ code: "isRequired" })
-                                    // errors.push({ code: "isEmail" })
-                                    // errors.push({ code: "isNumeric" })
-                                    // errors.push({ code: "mustMatch", target: targetName })
-
-                                    switch (error.code) {
-                                        case "minLength":
-                                            return (
-                                                "Should be at least " +
-                                                error.minLength +
-                                                " long"
-                                            )
-                                        case "maxLength":
-                                            return (
-                                                "Should be at least " +
-                                                error.maxLength +
-                                                " long"
-                                            )
-                                        case "isNumeric":
-                                            return "Should be composed of digits only"
-                                        case "isEmail":
-                                            return "The email entered is formatted incorrectly."
-                                        case "isRequired":
-                                            return "This field is required"
-                                        case "mustMatch":
-                                            return (
-                                                "This field must match " +
-                                                error.target
-                                            )
-                                        default:
-                                            return "Unknown error " + error.code
-                                    }
-                                }
+                            formElement.errors.map(inputError => {
                                 return (
                                     <p
                                         key={inputError.code}
                                         className={classes.InputErrors}
                                     >
-                                        {prettyErrorMessage(inputError)}
+                                        {this.prettyErrorMessage(inputError)}
                                     </p>
                                 )
                             })}

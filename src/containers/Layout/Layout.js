@@ -13,7 +13,7 @@ class Layout extends Component {
     render() {
         const navigationBar = (
             <div className={classes.NavBar}>
-                {this.props.isLoggedIn && <NavItem to="/logout" onClick={() => this.props.logoutUser()}>
+                {this.props.isLoggedIn && <NavItem to="/logout" onClick={this.props.logoutUser}>
                     Logout
                 </NavItem>}
                 {this.props.isLoggedIn && <NavItem to="/app">Notes</NavItem>}

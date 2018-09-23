@@ -4,8 +4,120 @@ import axios from "axios"
 // NOTES
 const notesEndpoint = "https://react-notesy.firebaseio.com/notes"
 
+const authStr = idToken => "?auth=" + idToken
 
-export const addNote = (title, content) => (dispatch, getState) => {
+const firebase = new function() {
+    this.addNote = async (noteData, idToken) => {
+        try {
+            const response = await axios.post(
+                `${notesEndpoint}.json${authStr(idToken)}`,
+                noteData
+            )
+            return response.data
+        } catch (error) {
+            console.log(error)
+            throw error.response.data
+        }
+    }
+
+    this.removeNote = async (noteId, idToken) => {
+        try {
+            const response = await axios.delete(
+                `${notesEndpoint}/${noteId}.json${authStr(idToken)}`
+            )
+            return response.data
+        } catch (error) {
+            console.log(error)
+            throw error.response.data
+        }
+    }
+
+    this.saveNote = async (noteData, noteId, idToken) => {
+        try {
+            const response = await axios.patch(
+                `${notesEndpoint}/${noteId}.json${authStr(idToken)}`,
+                noteData
+            )
+            return response.data
+        } catch (error) {
+            console.log(error)
+            throw error.response.data
+        }
+    }
+
+    this.getNotes = async (userId, idToken) => {
+        try {
+            const response = await axios.get(
+                `${notesEndpoint}.json${authStr(idToken)}`
+            )
+            return Object.keys(response.data)
+                .map(key => ({
+                    id: key,
+                    userId: response.data[key].user_id,
+                    title: response.data[key].title,
+                    content: response.data[key].content,
+                    tags: response.data[key].tags || [],
+                }))
+                .filter(el => el.userId === userId)
+        } catch (error) {
+            console.log(error)
+            throw error.response.data
+        }
+    }
+
+    this.getTags = async (noteId, idToken) => {
+        try {
+            const response = await axios.get(
+                `${notesEndpoint}/${noteId}/tags.json${authStr(idToken)}`
+            )
+            return response.data || []
+        } catch (error) {
+            console.log(error)
+            throw error.response.data
+        }
+    }
+
+    this.addTags = async (tags, noteId, idToken) => {
+        try {
+            const existingTags = await this.getTags(noteId, idToken)
+            const newTags = existingTags.concat(tags)
+            await this.setTags(newTags, noteId, idToken)
+            return newTags
+        } catch (error) {
+            console.log(error)
+            throw error.response.data
+        }
+    }
+
+    this.setTags = async (tags, noteId, idToken) => {
+        try {
+            const response = await axios.patch(
+                `${notesEndpoint}/${noteId}.json${authStr(idToken)}`,
+                {
+                    tags,
+                }
+            )
+            return response.data.tags || []
+        } catch (error) {
+            console.log(error)
+            throw error.response.data
+        }
+    }
+
+    this.deleteTag = async (tag, noteId, idToken) => {
+        try {
+            const existingTags = await this.getTags(noteId, idToken)
+            const filteredTags = existingTags.filter(t => t !== tag)
+            const newTags = await this.setTags(filteredTags, noteId, idToken)
+            return newTags
+        } catch (error) {
+            console.log(error)
+            throw error.response.data
+        }
+    }
+}()
+
+export const addNote = (title, content, userId, idToken) => async dispatch => {
     const start = () => ({ type: actionTypes.ADD_NOTE_START })
     const fail = error => ({ type: actionTypes.ADD_NOTE_FAIL, error })
     const success = (id, title, content) => ({
@@ -14,22 +126,21 @@ export const addNote = (title, content) => (dispatch, getState) => {
         title,
         content,
     })
-    dispatch(start())
-
-    const user_id = getState().auth.localId
-    const noteData = { user_id, title, content }
-
-    axios
-        .post(notesEndpoint + ".json?auth=" + getState().auth.idToken, noteData)
-        .then(response => {
-            const id = response.data.name
-            dispatch(success(id, title, content))
-            dispatch(setCurrentNote(id))
-        })
-        .catch(error => dispatch(fail(error.response.data.error)))
+    try {
+        dispatch(start())
+        const data = await firebase.addNote(
+            { title, content, user_id: userId },
+            idToken
+        )
+        const id = data.name
+        dispatch(success(id, title, content))
+        dispatch(setCurrentNote(id))
+    } catch (error) {
+        dispatch(fail(error))
+    }
 }
 
-export const addTag = (id, tags) => (dispatch, getState) => {
+export const addTag = (id, tags, idToken) => async (dispatch, getState) => {
     const start = () => ({ type: actionTypes.ADD_TAG_START })
     const fail = error => ({ type: actionTypes.ADD_TAG_FAIL, error })
     const success = (id, tags) => ({
@@ -37,63 +148,35 @@ export const addTag = (id, tags) => (dispatch, getState) => {
         id,
         tags,
     })
-    dispatch(start())
 
-    const url = notesEndpoint + "/" + id
-
-    axios
-        .get(url + "/tags.json?auth=" + getState().auth.idToken)
-        .then(response => {
-            const existingTags = response.data || []
-            const noteData = {
-                tags: existingTags.concat(tags),
-            }
-            axios.patch(url + ".json?auth=" + getState().auth.idToken, noteData).then(response => {
-                dispatch(success(id, noteData.tags))
-            })
-        .catch(error => dispatch(fail(error.response)))
-        })
-        .catch(error => dispatch(fail(error.response)))
+    try {
+        dispatch(start())
+        const newTags = await firebase.addTags(tags, id, idToken)
+        dispatch(success(id, newTags))
+    } catch (error) {
+        dispatch(fail(error))
+    }
 }
 
-export const deleteTag = (id, tag) => (dispatch, getState) => {
-    dispatch(updateStatus("Removing tag..."))
-    const start = () => ({ type: actionTypes.REMOVE_TAG_START, id })
-    const fail = error => ({ type: actionTypes.REMOVE_TAG_FAIL, error })
+export const deleteTag = (id, tag, idToken) => async (dispatch, getState) => {
+    const start = () => ({ type: actionTypes.DELETE_TAG_START, id })
+    const fail = error => ({ type: actionTypes.DELETE_TAG_FAIL, error })
     const success = ts => ({
-        type: actionTypes.REMOVE_TAG_SUCCESS,
+        type: actionTypes.DELETE_TAG_SUCCESS,
         id,
         tags: ts,
     })
-    dispatch(start())
-
-    const url = notesEndpoint + "/" + id
-    axios.get(url + "/tags.json?auth=" + getState().auth.idToken).then(response => {
-        console.log("response: ", response)
-        const existingTags = response.data
-        const noteData = {
-            tags: existingTags.filter(t => t !== tag),
-        }
-        console.log("noteData: ", noteData)
-        axios
-            .patch(url + ".json?auth=" + getState().auth.idToken, noteData)
-            .then(response => {
-                dispatch(success(noteData.tags))
-            })
-            .catch(error => {
-                console.log(error)
-                dispatch(fail(error.response.data.error))
-            })
-    }).catch(err => {
-        console.log(err)
-        dispatch(fail(err.response.data.error))
-    })
+    try {
+        dispatch(updateStatus("Deleting tag..."))
+        dispatch(start())
+        const newTags = await firebase.deleteTag(tag, id, idToken)
+        dispatch(success(newTags))
+    } catch (error) {
+        dispatch(fail(error))
+    }
 }
-export const removeNote = id => (dispatch, getState) => {
-    const { title, content } = getState().note.notes.find(el => el.id === id)
-    if (title === "" && content === "" && getState().note.notes.length === 1)
-        return
-    dispatch(updateStatus("Removing note..."))
+
+export const removeNote = (id, idToken) => async (dispatch, getState) => {
     const start = () => ({ type: actionTypes.REMOVE_NOTE_START, id })
     const fail = error => ({ type: actionTypes.REMOVE_NOTE_FAIL, error })
     const success = (id, title, content) => ({
@@ -102,65 +185,47 @@ export const removeNote = id => (dispatch, getState) => {
         title,
         content,
     })
-    dispatch(start())
+    const { title, content } = getState().note.notes.find(el => el.id === id)
+    if (title === "" && content === "" && getState().note.notes.length === 1)
+        return
 
-    axios
-        .delete(notesEndpoint + "/" + id + ".json?auth=" + getState().auth.idToken)
-        .then(response => {
-            dispatch(success(id))
-            dispatch(updateStatus())
-            if (getState().note.notes.length) {
-                const goodId = getState().note.notes[
-                    getState().note.notes.length - 1
-                ].id
-                dispatch(setCurrentNote(goodId))
-            } else {
-                dispatch(addNote("", ""))
-            }
-        })
-        .catch(error => {
-            console.log(error)
-            dispatch(fail(error.response.data.error))
-        })
+    try {
+        dispatch(updateStatus("Removing note..."))
+        dispatch(start())
+
+        const data = await firebase.removeNote(id, idToken)
+        dispatch(success(id))
+        dispatch(updateStatus())
+        if (getState().note.notes.length) {
+            const goodId = getState().note.notes[
+                getState().note.notes.length - 1
+            ].id
+            dispatch(setCurrentNote(goodId))
+        } else {
+            dispatch(addNote("", ""))
+        }
+    } catch (error) {
+        dispatch(fail(error))
+    }
 }
-export const getNote = noteId => ({ type: actionTypes.GET_NOTE, noteId })
 
-export const getNotes = () => (dispatch, getState) => {
-    const getNotesStart = () => ({ type: actionTypes.GET_NOTES_START })
-    const getNotesFail = error => ({ type: actionTypes.GET_NOTES_FAIL, error })
-    const getNotesSuccess = notes => ({
+export const getNote = noteId => ({ type: actionTypes.GET_NOTE, noteId })
+export const getNotes = (userId, tokenId) => async (dispatch, getState) => {
+    const start = () => ({ type: actionTypes.GET_NOTES_START })
+    const fail = error => ({ type: actionTypes.GET_NOTES_FAIL, error })
+    const success = notes => ({
         type: actionTypes.GET_NOTES_SUCCESS,
         notes,
     })
 
-    const tokenStr = "?auth=" + getState().auth.idToken
-    dispatch(getNotesStart())
-    const request = notesEndpoint + ".json" + tokenStr
-    axios
-        .get(request)
-        .then(response => {
-            // console.log(response.data)
-            const keys = Object.keys(response.data)
-            const arr = keys.map(key => {
-                console.log("thing:", response.data[key].tags)
-                return {
-                    id: key,
-                    userId: response.data[key].user_id,
-                    title: response.data[key].title,
-                    content: response.data[key].content,
-                    tags: response.data[key].tags
-                        ? response.data[key].tags
-                        : [],
-                }
-            }).filter(el => el.userId === getState().auth.localId)
-            console.log("arr:", arr)
-            dispatch(getNotesSuccess(arr))
-            if(arr.length) dispatch(setCurrentNote(arr[0].id))
-        })
-        .catch(error => {
-            console.log(error)
-            dispatch(getNotesFail(error.response.data.error))
-        })
+    try {
+        dispatch(start())
+        const notes = await firebase.getNotes(userId, tokenId)
+        dispatch(success(notes))
+        if (notes.length) dispatch(setCurrentNote(notes[0].id))
+    } catch (error) {
+        dispatch(fail(error))
+    }
 }
 
 // // CURRENT NOTE
@@ -176,29 +241,32 @@ export const setCurrentNote = id => ({
     type: actionTypes.SET_CURRENT_NOTE,
     id: id,
 })
-export const saveNote = (id, title, content) => (dispatch, getState) => {
-    dispatch(updateStatus("Saving note..."))
-    const saveNoteStart = (id, title, content) => ({
+
+export const saveNote = (id, title, content, idToken) => async (
+    dispatch,
+    getState
+) => {
+    const start = (id, title, content) => ({
         type: actionTypes.SAVE_NOTE_START,
         id,
         title,
         content,
     })
-    const saveNoteFail = error => ({ type: actionTypes.SAVE_NOTE_FAIL, error })
-    const saveNoteSuccess = () => ({
+    const fail = error => ({ type: actionTypes.SAVE_NOTE_FAIL, error })
+    const success = () => ({
         type: actionTypes.SAVE_NOTE_SUCCESS,
     })
 
-    dispatch(saveNoteStart(id, title, content))
-    const url = notesEndpoint + "/" + id + "/.json?auth=" + getState().auth.idToken
+    try {
+        dispatch(updateStatus("Saving note..."))
+        dispatch(start(id, title, content))
 
-    axios
-        .patch(url, { title, content })
-        .then(response => {
-            dispatch(saveNoteSuccess())
-            dispatch(updateStatus())
-        })
-        .catch(error => dispatch(saveNoteFail(error.response.data.error)))
+        const data = await firebase.saveNote({ title, content }, id, idToken)
+        dispatch(success())
+        dispatch(updateStatus())
+    } catch (error) {
+        dispatch(fail(error))
+    }
 }
 
 export const updateStatus = (status = "") => ({

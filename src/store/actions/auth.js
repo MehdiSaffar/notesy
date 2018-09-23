@@ -89,7 +89,7 @@ export const signupUser = (email, password) => (dispatch, getState) => {
     return axios
         .post(url, authData)
         .then(response => {
-            console.log(response.data)
+            // console.log(response.data)
             const authData = {
                 email: response.data.email,
                 idToken: response.data.idToken,

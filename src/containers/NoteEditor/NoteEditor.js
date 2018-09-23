@@ -2,7 +2,7 @@ import React, { Component } from "react"
 import { produce } from "immer"
 import classes from "./NoteEditor.css"
 import { connect } from "react-redux"
-import * as actions from "../../store/actions"
+import * as actions from "../../store/actions/index"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 // Changing a note data triggers a timer with SAVE_TIME amount in milliseconds to trigger a save
@@ -98,27 +98,28 @@ class NoteEditor extends Component {
             this.state.content
         )
 
-        this.props.saveNote(this.state.id, title, content)
+        this.props.saveNote(this.state.id, title, content, this.props.idToken)
     }
 
     onDeleteNoteClickedHandler = () => {
-        this.props.deleteNote(this.state.id)
+        console.log(this.props.deleteNote)
+        this.props.deleteNote(this.state.id, this.props.idToken)
     }
     onRemoveTagClickedHandler = tag => {
-        this.props.deleteTag(this.state.id, tag)
+        this.props.deleteTag(this.state.id, tag, this.props.idToken)
     }
     onTagInputKeyUpHandler = event => {
         if (event.key === "Enter") {
             event.preventDefault()
             if (!this.props.tags.includes(this.state.tagInput.trim())) {
-                this.props.addTag(this.state.id, [this.state.tagInput.trim()])
+                this.props.addTag(this.state.id, [this.state.tagInput.trim()], this.props.idToken)
                 this.setState({ ...this.state, tagInput: "" })
             }
         }
     }
 
     onContentKeyDownHandler = event => {
-        if (event.keyCode == 9) {
+        if (event.keyCode === 9) {
             event.preventDefault()
             let start = event.target.selectionStart
             let end = event.target.selectionEnd
@@ -177,7 +178,7 @@ class NoteEditor extends Component {
             <div className={classes.Toolbar}>
                 <button
                     className={classes.ToolIcon}
-                    onClick={this.onDeleteNoteClickedHandler}
+                    onClick={() => this.onDeleteNoteClickedHandler()}
                 >
                     <FontAwesomeIcon icon={"trash"} fixedWidth />
                 </button>
@@ -248,13 +249,14 @@ const mapStateToProps = state => ({
     title: state.note.currentNote.title,
     content: state.note.currentNote.content,
     tags: state.note.currentNote.tags,
+    idToken: state.auth.idToken,
+    userId: state.auth.localId,
 })
 
 export default connect(
     mapStateToProps,
     {
         saveNote: actions.saveNote,
-        addNote: actions.addNote,
         deleteNote: actions.removeNote,
         updateCurrentNote: actions.updateCurrentNote,
         updateStatus: actions.updateStatus,

@@ -11,7 +11,7 @@ class NoteList extends Component {
         searchText: "",
     }
     componentDidMount() {
-        this.props.getNotes()
+        this.props.getNotes(this.props.userId, this.props.idToken)
     }
 
     onNoteListItemClickedHandler = id => {
@@ -19,7 +19,7 @@ class NoteList extends Component {
     }
 
     onAddNoteButtonClickedHandler = () => {
-        this.props.addNote("", "")
+        this.props.addNote("", "", this.props.userId, this.props.idToken)
     }
     onSearchBarChangedHandler = event => {
         event.preventDefault()
@@ -68,7 +68,7 @@ class NoteList extends Component {
         const finalNotes = this.state.searchText.trim()
             ? this.getSearchResults()
             : this.props.notes
-        console.log(this.getSearchResults())
+        // console.log(this.getSearchResults())
 
         const notes = finalNotes ? (
             finalNotes.map(note => (
@@ -102,6 +102,8 @@ const mapStateToProps = state => ({
     notes: state.note.notes,
     currentNote: state.note.currentNote,
     deletingNote: state.note.deletingNote,
+    userId: state.auth.localId,
+    idToken: state.auth.idToken,
 })
 
 export default connect(

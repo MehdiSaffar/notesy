@@ -7,11 +7,11 @@ import { Redirect } from "react-router"
 import classes from "./Login.css"
 import { icons } from "./../../icons"
 import { produce } from "immer"
-import logo from "./logo.jpg"
+import logoImg from "./logo.jpg"
 
 class Login extends Component {
     forms = {
-        "signup": () => ({
+        signup: () => ({
             name: "signup",
             elements: [
                 {
@@ -125,14 +125,14 @@ class Login extends Component {
             .then(() => {
                 this.setState({ ...this.state, isLoginLoading: false })
             })
-            .catch((error) => {
+            .catch(error => {
                 let message = error.message
                 if (error.message.indexOf(" "))
                     message = error.message.substr(
                         0,
                         error.message.indexOf(" ")
                     )
-                console.log(error)
+                // console.log(error)
                 switch (message) {
                     default:
                         message =
@@ -140,7 +140,11 @@ class Login extends Component {
                         break
                 }
 
-                this.setState({ ...this.state, error: message, isLoginLoading: false })
+                this.setState({
+                    ...this.state,
+                    error: message,
+                    isLoginLoading: false,
+                })
             })
     }
 
@@ -170,7 +174,7 @@ class Login extends Component {
                         0,
                         error.message.indexOf(" ")
                     )
-                console.log(error)
+                // console.log(error)
                 switch (message) {
                     case "EMAIL_EXISTS":
                         message =
@@ -202,51 +206,60 @@ class Login extends Component {
     render() {
         const redirect = this.props.isLoggedIn ? <Redirect to="/app" /> : null
 
-        const error = this.state.error
+        const error = <p>{this.state.error}</p>
+        const logo = (
+            <div className={classes.Logo}>
+                <img src={logoImg} alt="Notesy Logo" />
+            </div>
+        )
+        const innerForm = (
+            <Form
+                form={this.state.form}
+                onFormUpdated={this.onFormUpdatedHandler}
+            />
+        )
+        const buttons =
+            this.state.form.name === "login" ? (
+                <Button
+                    type="submit"
+                    btnStyle="Success"
+                    extraClasses={[classes.LoginButton]}
+                    disabled={
+                        this.props.isLoggedIn || !this.state.form.formIsValid
+                    }
+                    onClick={this.onLoginButtonClickedHandler}
+                >
+                    Login
+                </Button>
+            ) : (
+                <Button
+                    type="submit"
+                    btnStyle="Success"
+                    disabled={!this.state.form.formIsValid}
+                    onClick={this.onSignupButtonClickedHandler}
+                >
+                    Signup
+                </Button>
+            )
+        const formSwitch = (
+            <p>
+                {this.state.form.name === "login" ? (
+                    <a href="" onClick={this.onChangeFormClickedHandler}>
+                        Not signed up? Sign up now!
+                    </a>
+                ) : (
+                    <a href="" onClick={this.onChangeFormClickedHandler}>
+                        Already have an account? Login now!
+                    </a>
+                )}
+            </p>
+        )
         const form = (
             <div className={classes.Form}>
-                <div className={classes.Logo}>
-                    <img src={logo} alt="Notesy Logo" />
-                </div>
-                <p>{error}</p>
-                <Form
-                    form={this.state.form}
-                    onFormUpdated={this.onFormUpdatedHandler}
-                />
-                {this.state.form.name === "login" ? (
-                    <Button
-                        type="submit"
-                        btnStyle="Success"
-                        extraClasses={[classes.LoginButton]}
-                        disabled={
-                            this.props.isLoggedIn ||
-                            !this.state.form.formIsValid
-                        }
-                        onClick={this.onLoginButtonClickedHandler}
-                    >
-                        Login
-                    </Button>
-                ) : (
-                    <Button
-                        type="submit"
-                        btnStyle="Success"
-                        disabled={!this.state.form.formIsValid}
-                        onClick={this.onSignupButtonClickedHandler}
-                    >
-                        Signup
-                    </Button>
-                )}
-                <p>
-                    {this.state.form.name === "login" ? (
-                        <a href="" onClick={this.onChangeFormClickedHandler}>
-                            Not signed up? Sign up now!
-                        </a>
-                    ) : (
-                        <a href="" onClick={this.onChangeFormClickedHandler}>
-                            Already have an account? Login now!
-                        </a>
-                    )}
-                </p>
+                {error}
+                {innerForm}
+                {buttons}
+                {formSwitch}
             </div>
         )
         return (
