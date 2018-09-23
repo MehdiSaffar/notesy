@@ -1,4 +1,4 @@
-import React, { Component} from "react"
+import React, { Component } from "react"
 import * as actions from "../../store/actions/index"
 import { connect } from "react-redux"
 import NoteListItem from "./NoteListItem/NoteListItem"
@@ -15,12 +15,16 @@ class NoteList extends Component {
     }
 
     onNoteListItemClickedHandler = id => {
-        if(this.props.currentNote.id !== id) this.props.setCurrentNote(id)
+        // No point in sending action if same selected
+        if (this.props.currentNote.id !== id) {
+            this.props.setCurrentNote(id)
+        }
     }
 
     onAddNoteButtonClickedHandler = () => {
         this.props.addNote("", "", this.props.userId, this.props.idToken)
     }
+
     onSearchBarChangedHandler = event => {
         event.preventDefault()
         this.setState({
@@ -35,7 +39,6 @@ class NoteList extends Component {
             tokenize: true,
             matchAllTokens: true,
             keys: ["title", "content", "tags"],
-            // id: 'id'
         }
         const fuse = new Fuse(this.props.notes, searchOptions)
         return fuse.search(this.state.searchText.trim())

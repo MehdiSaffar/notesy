@@ -60,7 +60,9 @@ class NoteEditor extends Component {
 
     componentWillUnmount() {
         // Clear timeout to avoid any unexpected save
-        if (this.saveTimer) clearTimeout(this.saveTimer)
+        if (this.saveTimer) {
+            clearTimeout(this.saveTimer)
+        }
     }
 
     // Triggered when the note content changes
@@ -83,35 +85,26 @@ class NoteEditor extends Component {
         this.checkSaveTimer()
     }
 
-    checkSaveTimer = () => {
-        if (this.saveTimer !== null) {
-            clearTimeout(this.saveTimer)
-        }
-        this.saveTimer = setTimeout(() => {
-            this.updateNoteAndSaveNote()
-        }, SAVE_TIME)
-    }
-
-    updateNoteAndSaveNote = async () => {
-        const { title, content } = await this.props.updateCurrentNote(
-            this.state.title,
-            this.state.content
-        )
-
-        this.props.saveNote(this.state.id, title, content, this.props.idToken)
-    }
-
+    // Triggered when the delete button is pressed
     onDeleteNoteClickedHandler = () => {
         this.props.deleteNote(this.state.id, this.props.idToken)
     }
+
+    // Triggered when the tag is clicked
     onRemoveTagClickedHandler = tag => {
         this.props.deleteTag(this.state.id, tag, this.props.idToken)
     }
+
+    // Triggered when user presses a key in the tag input
     onTagInputKeyUpHandler = event => {
         if (event.key === "Enter") {
             event.preventDefault()
             if (!this.props.tags.includes(this.state.tagInput.trim())) {
-                this.props.addTag(this.state.id, [this.state.tagInput.trim()], this.props.idToken)
+                this.props.addTag(
+                    this.state.id,
+                    [this.state.tagInput.trim()],
+                    this.props.idToken
+                )
                 this.setState({ ...this.state, tagInput: "" })
             }
         }
@@ -172,37 +165,75 @@ class NoteEditor extends Component {
         }
     }
 
+    // Checks if enough time has passed between the last edit to trigger a save
+    checkSaveTimer = () => {
+        if (this.saveTimer !== null) {
+            clearTimeout(this.saveTimer)
+        }
+        this.saveTimer = setTimeout(() => {
+            this.updateNoteAndSaveNote()
+        }, SAVE_TIME)
+    }
+
+    // Updates the note locally and saves it to the database
+    updateNoteAndSaveNote = async () => {
+        try {
+            const { title, content } = await this.props.updateCurrentNote(
+                this.state.title,
+                this.state.content
+            )
+            this.props.saveNote(
+                this.state.id,
+                title,
+                content,
+                this.props.idToken
+            )
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     render() {
+        const deleteNoteButton = (
+            <button
+                className={classes.ToolIcon}
+                onClick={() => this.onDeleteNoteClickedHandler()}
+            >
+                <FontAwesomeIcon icon={"trash"} fixedWidth />
+            </button>
+        )
+        const tags =
+            this.props.tags &&
+            this.props.tags.map(tag => (
+                <div
+                    key={tag}
+                    className={classes.Tag}
+                    onClick={() => this.onRemoveTagClickedHandler(tag)}
+                >
+                    {tag}
+                </div>
+            ))
+
+        const tagInput = (
+            <input
+                className={classes.TagInput}
+                value={this.state.tagInput}
+                onChange={event =>
+                    this.setState({
+                        ...this.state,
+                        tagInput: event.target.value,
+                    })
+                }
+                onKeyUp={this.onTagInputKeyUpHandler}
+                placeholder="Add tag here..."
+            />
+        )
+
         const toolbar = (
             <div className={classes.Toolbar}>
-                <button
-                    className={classes.ToolIcon}
-                    onClick={() => this.onDeleteNoteClickedHandler()}
-                >
-                    <FontAwesomeIcon icon={"trash"} fixedWidth />
-                </button>
-                {this.props.tags &&
-                    this.props.tags.map(tag => (
-                        <div
-                            className={classes.Tag}
-                            key={tag}
-                            onClick={() => this.onRemoveTagClickedHandler(tag)}
-                        >
-                            {tag}
-                        </div>
-                    ))}
-                <input
-                    className={classes.TagInput}
-                    value={this.state.tagInput}
-                    onChange={event =>
-                        this.setState({
-                            ...this.state,
-                            tagInput: event.target.value,
-                        })
-                    }
-                    onKeyUp={this.onTagInputKeyUpHandler}
-                    placeholder="Add tag here..."
-                />
+                {deleteNoteButton}
+                {tags}
+                {tagInput}
             </div>
         )
 
@@ -243,17 +274,15 @@ class NoteEditor extends Component {
     }
 }
 
-const mapStateToProps = state => ({
-    id: state.note.currentNote.id,
-    title: state.note.currentNote.title,
-    content: state.note.currentNote.content,
-    tags: state.note.currentNote.tags,
-    idToken: state.auth.idToken,
-    userId: state.auth.localId,
-})
-
 export default connect(
-    mapStateToProps,
+    state => ({
+        id: state.note.currentNote.id,
+        title: state.note.currentNote.title,
+        content: state.note.currentNote.content,
+        tags: state.note.currentNote.tags,
+        idToken: state.auth.idToken,
+        userId: state.auth.localId,
+    }),
     {
         saveNote: actions.saveNote,
         deleteNote: actions.removeNote,

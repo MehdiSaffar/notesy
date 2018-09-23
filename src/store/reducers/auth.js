@@ -10,22 +10,35 @@ const initialState = {
     expirationDate: null,
 }
 
-const checkTokenLocalStorage = (state,action) => {
+const checkTokenLocalStorage = (state, action) => {
     const idToken = window.localStorage.getItem("idToken")
     const localId = window.localStorage.getItem("localId")
     const email = window.localStorage.getItem("email")
     const expirationDate = window.localStorage.getItem("expirationDate")
-    if(idToken) {
-        return {
-            ...state,
-            isLoggedIn: true,
-            idToken,
-            localId,
-            email,
-            expirationDate
+
+    const today = new Date()
+    const expiration = new Date(expirationDate)
+
+    if (idToken) {
+        if (today.getTime() <= expiration.getTime()) {
+            console.log("Found ", idToken)
+            return {
+                ...state,
+                isLoggedIn: true,
+                idToken,
+                localId,
+                email,
+                expirationDate,
+            }
+        } else {
+            console.log("Token found expired")
+            window.localStorage.removeItem("idToken")
+            window.localStorage.removeItem("localId")
+            window.localStorage.removeItem("email")
+            window.localStorage.removeItem("expirationDate")
         }
-    }
-    else return state
+    } 
+    return state
 }
 
 const loginUserSuccess = (state, action) =>
@@ -38,25 +51,26 @@ const loginUserSuccess = (state, action) =>
             Date.now() + action.expiresIn * 1000
         )
 
-         window.localStorage.setItem("idToken", action.idToken)
-         window.localStorage.setItem("localId", action.localId)
-         window.localStorage.setItem("email", action.email)
-         window.localStorage.setItem("expirationDate", draftState.expirationDate)
+        window.localStorage.setItem("idToken", action.idToken)
+        window.localStorage.setItem("localId", action.localId)
+        window.localStorage.setItem("email", action.email)
+        window.localStorage.setItem("expirationDate", draftState.expirationDate)
     })
 
 const loginUserFail = (state, action) => produce(state, draftState => {})
 
-const logoutUser = (state, action) => produce(state, draftState => {
-    draftState.isLoggedIn = false
-    draftState.email = null
-    draftState.idToken = null
-    draftState.localId = null
-    draftState.expirationDate = null
-    window.localStorage.removeItem("idToken")
-    window.localStorage.removeItem("localId")
-    window.localStorage.removeItem("email")
-    window.localStorage.removeItem("expirationDate")
-})
+const logoutUser = (state, action) =>
+    produce(state, draftState => {
+        draftState.isLoggedIn = false
+        draftState.email = null
+        draftState.idToken = null
+        draftState.localId = null
+        draftState.expirationDate = null
+        window.localStorage.removeItem("idToken")
+        window.localStorage.removeItem("localId")
+        window.localStorage.removeItem("email")
+        window.localStorage.removeItem("expirationDate")
+    })
 
 const signupUserSuccess = (state, action) => loginUserSuccess(state, action)
 const signupUserFail = (state, action) => produce(state, draftState => {})

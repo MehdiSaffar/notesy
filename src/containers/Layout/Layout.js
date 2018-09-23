@@ -1,4 +1,4 @@
-import React, { Component} from "react"
+import React, { Component } from "react"
 import { Switch, Route, Redirect } from "react-router"
 import Login from "../Login/Login"
 import MainPage from "../MainPage/MainPage"
@@ -13,9 +13,11 @@ class Layout extends Component {
     render() {
         const navigationBar = (
             <div className={classes.NavBar}>
-                {this.props.isLoggedIn && <NavItem to="/logout" onClick={this.props.logoutUser}>
-                    Logout
-                </NavItem>}
+                {this.props.isLoggedIn && (
+                    <NavItem to="/logout" onClick={this.props.logoutUser}>
+                        Logout
+                    </NavItem>
+                )}
                 {this.props.isLoggedIn && <NavItem to="/app">Notes</NavItem>}
                 {this.props.isLoggedIn || <NavItem to="/login">Login</NavItem>}
                 <NavItem to="/">Main page</NavItem>
@@ -23,17 +25,17 @@ class Layout extends Component {
         )
 
         const main = (
-                <div className={classes.Content}>
-                    <Switch>
-                        <Route path="/login" exact component={Login} />
-                        {this.props.isLoggedIn ? (
-                            <Route path="/app" exact component={NoteApp} />
-                        ) : (
-                            <Redirect to="/login" />
-                        )}
-                        <Route path="/" exact component={MainPage} />
-                    </Switch>
-                </div>
+            <div className={classes.Content}>
+                <Switch>
+                    <Route path="/login" exact component={Login} />
+                    {this.props.isLoggedIn ? (
+                        <Route path="/app" exact component={NoteApp} />
+                    ) : (
+                        <Redirect to="/login" />
+                    )}
+                    <Route path="/" exact component={MainPage} />
+                </Switch>
+            </div>
         )
 
         const footer = (
@@ -52,17 +54,15 @@ class Layout extends Component {
     }
 }
 
-const mapStateToProps = state => ({
-    isLoggedIn: state.auth.isLoggedIn,
-    status: state.note.status,
-    email: state.auth.email,
-})
-
 export default withRouter(
     connect(
-        mapStateToProps,
+        state => ({
+            isLoggedIn: state.auth.isLoggedIn,
+            status: state.note.status,
+            email: state.auth.email,
+        }),
         {
-            logoutUser: actions.logoutUser
+            logoutUser: actions.logoutUser,
         }
     )(Layout)
 )

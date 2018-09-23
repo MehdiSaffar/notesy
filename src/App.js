@@ -12,9 +12,9 @@ var ic = Object.keys(icons).map(iconName => icons[iconName])
 library.add(...ic)
 
 class App extends Component {
-    // componentDidMount() {
-    //     this.props.checkTokenLocalStorage()
-    // }
+    componentDidMount() {
+        this.props.checkTokenLocalStorage()
+    }
     render() {
         return <Layout />
     }
