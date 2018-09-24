@@ -5,21 +5,23 @@ import MainPage from "../MainPage/MainPage"
 import NoteApp from "../NoteApp/NoteApp"
 import NavItem from "./../../components/UI/NavBar/NavItem/NavItem"
 import classes from "./Layout.css"
-import { connect } from "react-redux"
-import * as actions from "./../../store/actions/index"
 import { withRouter } from "react-router"
+import { observer, inject} from "mobx-react";
 
+@inject('store')
+@observer
 class Layout extends Component {
     render() {
+        const store = this.props.store
         const navigationBar = (
             <div className={classes.NavBar}>
-                {this.props.isLoggedIn && (
-                    <NavItem to="/logout" onClick={this.props.logoutUser}>
+                {store.auth.isLoggedIn && (
+                    <NavItem to="/logout" onClick={store.auth.logoutUser}>
                         Logout
                     </NavItem>
                 )}
-                {this.props.isLoggedIn && <NavItem to="/app">Notes</NavItem>}
-                {this.props.isLoggedIn || <NavItem to="/login">Login</NavItem>}
+                {store.auth.isLoggedIn && <NavItem to="/app">Notes</NavItem>}
+                {store.auth.isLoggedIn || <NavItem to="/login">Login</NavItem>}
                 <NavItem to="/">Main page</NavItem>
             </div>
         )
@@ -28,7 +30,7 @@ class Layout extends Component {
             <div className={classes.Content}>
                 <Switch>
                     <Route path="/login" exact component={Login} />
-                    {this.props.isLoggedIn ? (
+                    {store.auth.isLoggedIn ? (
                         <Route path="/app" exact component={NoteApp} />
                     ) : (
                         <Redirect to="/login" />
@@ -40,7 +42,7 @@ class Layout extends Component {
 
         const footer = (
             <div className={classes.Footer}>
-                <p>{this.props.status}</p>
+                <p>{store.note.status}</p>
             </div>
         )
 
@@ -54,15 +56,4 @@ class Layout extends Component {
     }
 }
 
-export default withRouter(
-    connect(
-        state => ({
-            isLoggedIn: state.auth.isLoggedIn,
-            status: state.note.status,
-            email: state.auth.email,
-        }),
-        {
-            logoutUser: actions.logoutUser,
-        }
-    )(Layout)
-)
+export default withRouter(Layout)

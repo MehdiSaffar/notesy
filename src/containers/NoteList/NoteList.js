@@ -1,30 +1,33 @@
 import React, { Component } from "react"
-import * as actions from "../../store/actions/index"
-import { connect } from "react-redux"
 import NoteListItem from "./NoteListItem/NoteListItem"
 import classes from "./NoteList.css"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Fuse from "fuse.js"
 import ToolbarInput from "./../../components/UI/Form/Input/ToolbarInput"
 import ToolbarButton from "./../../components/UI/Form/Button/ToolbarButton"
+import { observer, inject} from 'mobx-react';
 
-class NoteList extends Component {
+@inject('store')
+@observer
+export default class NoteList extends Component {
     state = {
         searchText: "",
     }
     componentDidMount() {
-        this.props.getNotes(this.props.userId, this.props.idToken)
+        const userId = this.props.store.auth.userId
+        const tokenId =  this.props.store.auth.tokenId
+        this.props.store.note.getNotes(userId, tokenId)
     }
 
     onNoteListItemClickedHandler = id => {
         // No point in sending action if same selected
-        if (this.props.currentNote.id !== id) {
-            this.props.setCurrentNote(id)
+        if (this.props.store.note.currentNote.id !== id) {
+            this.props.store.note.setCurrentNote(id)
         }
     }
 
     onAddNoteButtonClickedHandler = () => {
-        this.props.addNote("", "", this.props.userId, this.props.idToken)
+        this.props.addNote("", "", this.props.store.auth.userId, this.props.store.auth.idToken)
     }
 
     onSearchBarChangedHandler = event => {
@@ -42,18 +45,13 @@ class NoteList extends Component {
             matchAllTokens: true,
             keys: ["title", "content", "tags"],
         }
-        const fuse = new Fuse(this.props.notes, searchOptions)
+        const fuse = new Fuse(this.props.store.note.notes, searchOptions)
         return fuse.search(this.state.searchText.trim())
     }
 
     render() {
-        // const addNoteButton = (
-        //     <button
-        //         className={classes.AddNote}
-        //         onClick={this.onAddNoteButtonClickedHandler}
-        //     >
-        //     </button>
-        // )
+        const store = this.props.store
+
         const addNoteButton = (
             <ToolbarButton extraClass={classes.AddNote} onClick={this.onAddNoteButtonClickedHandler}>
                 <FontAwesomeIcon icon="plus-circle" fixedWidth />
@@ -77,8 +75,7 @@ class NoteList extends Component {
 
         const finalNotes = this.state.searchText.trim()
             ? this.getSearchResults()
-            : this.props.notes
-        // console.log(this.getSearchResults())
+            : store.note.notes
 
         const notes = finalNotes ? (
             finalNotes.map(note => (
@@ -86,10 +83,10 @@ class NoteList extends Component {
                     key={note.id}
                     title={note.title}
                     isSelected={
-                        this.props.currentNote &&
-                        this.props.currentNote.id === note.id
+                        store.note.currentNote &&
+                        store.note.currentNote.id === note.id
                     }
-                    isBusyDeleting={this.props.deletingNote === note.id}
+                    isBusyDeleting={store.note.deletingNote === note.id}
                     onClick={() => this.onNoteListItemClickedHandler(note.id)}
                 >
                     {note.content}
@@ -107,22 +104,3 @@ class NoteList extends Component {
         )
     }
 }
-
-const mapStateToProps = state => ({
-    notes: state.note.notes,
-    currentNote: state.note.currentNote,
-    deletingNote: state.note.deletingNote,
-    userId: state.auth.localId,
-    idToken: state.auth.idToken,
-})
-
-export default connect(
-    mapStateToProps,
-    {
-        getNotes: actions.getNotes,
-        setCurrentNote: actions.setCurrentNote,
-        addNote: actions.addNote,
-        deleteNote: actions.removeNote,
-        addTag: actions.addTag,
-    }
-)(NoteList)

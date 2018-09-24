@@ -1,119 +1,6 @@
-import actionTypes from "./actionTypes"
-import axios from "axios"
 import { observable, computed, action, runInAction } from "mobx"
+import firebase from './../shared/firebase'
 
-    authStr = idToken => "?auth=" + idToken
-    notesEndpoint = "https://react-notesy.firebaseio.com/notes"
- firebase = new function() {
-    this.addNote = async (noteData, idToken) => {
-        try {
-            const response = await axios.post(
-                `${notesEndpoint}.json${authStr(idToken)}`,
-                noteData
-            )
-            return response.data
-        } catch (error) {
-            console.log(error)
-            throw error.response.data
-        }
-    }
-
-    this.removeNote = async (noteId, idToken) => {
-        try {
-            const response = await axios.delete(
-                `${notesEndpoint}/${noteId}.json${authStr(idToken)}`
-            )
-            return response.data
-        } catch (error) {
-            console.log(error)
-            throw error.response.data
-        }
-    }
-
-    this.saveNote = async (noteData, noteId, idToken) => {
-        try {
-            const response = await axios.patch(
-                `${notesEndpoint}/${noteId}.json${authStr(idToken)}`,
-                noteData
-            )
-            return response.data
-        } catch (error) {
-            console.log(error)
-            throw error.response.data
-        }
-    }
-
-    this.getNotes = async (userId, idToken) => {
-        try {
-            const response = await axios.get(
-                `${notesEndpoint}.json${authStr(idToken)}`
-            )
-            return Object.keys(response.data)
-                .map(key => ({
-                    id: key,
-                    userId: response.data[key].user_id,
-                    title: response.data[key].title,
-                    content: response.data[key].content,
-                    tags: response.data[key].tags || [],
-                }))
-                .filter(el => el.userId === userId)
-        } catch (error) {
-            console.log(error)
-            throw error.response.data
-        }
-    }
-
-    this.getTags = async (noteId, idToken) => {
-        try {
-            const response = await axios.get(
-                `${notesEndpoint}/${noteId}/tags.json${authStr(idToken)}`
-            )
-            return response.data || []
-        } catch (error) {
-            console.log(error)
-            throw error.response.data
-        }
-    }
-
-    this.addTags = async (tags, noteId, idToken) => {
-        try {
-            const existingTags = await this.getTags(noteId, idToken)
-            const newTags = existingTags.concat(tags)
-            await this.setTags(newTags, noteId, idToken)
-            return newTags
-        } catch (error) {
-            console.log(error)
-            throw error.response.data
-        }
-    }
-
-    this.setTags = async (tags, noteId, idToken) => {
-        try {
-            const response = await axios.patch(
-                `${notesEndpoint}/${noteId}.json${authStr(idToken)}`,
-                {
-                    tags,
-                }
-            )
-            return response.data.tags || []
-        } catch (error) {
-            console.log(error)
-            throw error.response.data
-        }
-    }
-
-    this.deleteTag = async (tag, noteId, idToken) => {
-        try {
-            const existingTags = await this.getTags(noteId, idToken)
-            const filteredTags = existingTags.filter(t => t !== tag)
-            const newTags = await this.setTags(filteredTags, noteId, idToken)
-            return newTags
-        } catch (error) {
-            console.log(error)
-            throw error.response.data
-        }
-    }
-}()
 
 export default class NoteStore {
     @observable
@@ -134,11 +21,11 @@ export default class NoteStore {
     }
 
     @action
-    async addNote(title, content) {
+    async addNote(title, content, userId, tokenId) {
         try {
             const data = await firebase.addNote(
                 { title, content, userId, tags: [] },
-                idToken
+                tokenId
             )
             const newNote = {
                 id: data.name,
@@ -146,7 +33,7 @@ export default class NoteStore {
                 content,
                 tags: [],
             }
-            runInAction('addNoteSuccess', () => {
+            runInAction("addNoteSuccess", () => {
                 this.notes.push(newNote)
                 this.setCurrentNote()
             })
@@ -155,52 +42,53 @@ export default class NoteStore {
         }
     }
 
-    @action async getNotes(userId, tokenId) {
+    @action
+    async getNotes(userId, tokenId) {
         try {
             const notes = await firebase.getNotes(userId, tokenId)
+            runInAction(() => this.notes = notes) 
         } catch (error) {
-            console.error('getNotes', error)
+            console.error("getNotes", error)
         }
     }
 
     @action
-    async removeNote(id) {
+    async removeNote(id, tokenId) {
         const { title, content } = this.notes.find(el => el.id === id)
 
         // dont delete last empty note
-        if (title === "" && content === "" && this.notes.length === 1)
-            return
+        if (title === "" && content === "" && this.notes.length === 1) return
 
         try {
-            const data = await firebase.removeNote(id, idToken)
+            const data = await firebase.removeNote(id, tokenId)
             this.notes = this.notes.filter(note => note.id !== id)
             if (this.currentNote.id === id) {
                 this.currentNote = {}
             }
             this.deletingNote = null
         } catch (error) {
-            console.error('removeNote', error)
+            console.error("removeNote", error)
         }
     }
     @action
-    async addTag(tags, id) {
+    async addTag(tags, id, tokenId) {
         try {
-            const newTags = await firebase.addTags(tags, id, idToken)
+            const newTags = await firebase.addTags(tags, id, tokenId)
             // nope
             this.notes.find(el => el.id === id).tags = newTags
             this.currentNote.tags = newTags
         } catch (error) {
-            console.error('addTag', error)
+            console.error("addTag", error)
         }
     }
     @action
-    async deleteTag(tags, id) {
+    async deleteTag(tag, id, tokenId) {
         try {
-            const newTags = await firebase.deleteTag(tag, id, idToken)
+            const newTags = await firebase.deleteTag(tag, id, tokenId)
             this.notes.find(el => el.id === id).tags = newTags
             this.currentNote.tags = newTags
         } catch (error) {
-            console.error('deleteTag', error)
+            console.error("deleteTag", error)
         }
         // nope
     }
@@ -232,33 +120,16 @@ export default class NoteStore {
         this.status = status === "" ? "Ready" : status
     }
 
-    // lkfjsd;fljds;lfjsdl;kfjsfjsdlkfjsdlfjdslkfjsdljfsl;kdjflksjflkdsjfd
-
-
-// NOTES
-
-// // CURRENT NOTE
-updateCurrentNote = (title, content)  {
-    return Promise.resolve({
-        title,
-        content,
-    })
-}
-
-
-saveNote = (id, title, content, idToken) => async (
-    dispatch,
-    getState
-) => {
-    try {
-        // dispatch(updateStatus("Saving note..."))
-        // dispatch(start(id, title, content))
-
-        const data = await firebase.saveNote({ title, content }, id, idToken)
-        // dispatch(success())
-        // dispatch(updateStatus())
-    } catch (error) {
-        // dispatch(fail(error))
-    }
+    @action
+    async saveNote(id, title, content, tokenId) {
+        try {
+            const data = await firebase.saveNote(
+                { title, content },
+                id,
+                tokenId
+            )
+        } catch (error) {
+            console.error(error)
+        }
     }
 }

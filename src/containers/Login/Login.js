@@ -1,13 +1,14 @@
 import React, { Component } from "react"
 import Form from "./../../components/UI/Form/Form"
 import Button from "./../../components/UI/Form/Button/Button"
-import * as actions from "../../store/actions/index"
-import { connect } from "react-redux"
 import { Redirect } from "react-router"
 import classes from "./Login.css"
 import { icons } from "./../../icons"
 import logoImg from "./logo.jpg"
+import { inject, observer } from "mobx-react";
 
+@inject('store')
+@observer
 class Login extends Component {
     forms = {
         signup: () => ({
@@ -120,16 +121,9 @@ class Login extends Component {
             isLoginLoading: true,
         })
         try {
-            await this.props.loginUser(email, password)
+            await this.props.store.auth.loginUser(email, password)
             this.setState({ ...this.state, isLoginLoading: false })
         } catch (error) {
-            // let message = error.response.data.error.message
-            // if (error.message.indexOf(" "))
-            //     message = error.message.substr(
-            //         0,
-            //         error.message.indexOf(" ")
-            //     )
-            // console.log(error)
             let message =
                 "There was an error signing up. Please try again in a moment."
             switch (error.message) {
@@ -195,7 +189,8 @@ class Login extends Component {
     }
 
     render() {
-        const redirect = this.props.isLoggedIn ? <Redirect to="/app" /> : null
+        const store = this.props.store
+        const redirect = store.auth.isLoggedIn ? <Redirect to="/app" /> : null
 
         const error = <p>{this.state.error}</p>
         const logo = (
@@ -216,7 +211,7 @@ class Login extends Component {
                     btnStyle="Success"
                     extraClasses={[classes.LoginButton]}
                     disabled={
-                        this.props.isLoggedIn || !this.state.form.formIsValid
+                        store.auth.isLoggedIn || !this.state.form.formIsValid
                     }
                     onClick={this.onLoginButtonClickedHandler}
                 >
@@ -262,15 +257,4 @@ class Login extends Component {
     }
 }
 
-const mapStateToProps = state => ({
-    isLoggedIn: state.auth.isLoggedIn,
-})
-
-export default connect(
-    mapStateToProps,
-    {
-        loginUser: actions.loginUser,
-        signupUser: actions.signupUser,
-        logoutUser: actions.logoutUser,
-    }
-)(Login)
+export default Login

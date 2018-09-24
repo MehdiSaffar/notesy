@@ -5,6 +5,9 @@ import App from "./App"
 import registerServiceWorker from "./registerServiceWorker"
 import { BrowserRouter } from "react-router-dom"
 import { Provider } from 'mobx-react'
+import NoteStore from './store/NoteStore';
+import AuthStore from './store/AuthStore';
+
 
 const store = {
     note: new NoteStore(),

@@ -1,18 +1,22 @@
 import React, { Component } from "react"
 import { produce } from "immer"
 import classes from "./NoteEditor.css"
-import { connect } from "react-redux"
-import * as actions from "../../store/actions/index"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import ToolbarInput from "./../../components/UI/Form/Input/ToolbarInput"
 import ToolbarButton from './../../components/UI/Form/Button/ToolbarButton';
+import { inject, observer } from "mobx-react";
+import { computed } from 'mobx'
 
 // Changing a note data triggers a timer with SAVE_TIME amount in milliseconds to trigger a save
 const SAVE_TIME = 150
 
-class NoteEditor extends Component {
+@inject('store')
+@observer
+export default class NoteEditor extends Component {
     // Changing a note data triggers a timer with SAVE_TIME amount in milliseconds to trigger a save
     saveTimer = null
+
+    @computed get store() { return this.props.store}
 
     state = {
         id: null,
@@ -28,7 +32,8 @@ class NoteEditor extends Component {
         // console.log("getDerivedStateFromProps")
 
         // A note has been deleted
-        if (props.id === undefined && state.id !== undefined) {
+        const store = props.store
+        if (store.note.id === undefined && state.id !== undefined) {
             return {
                 ...state,
                 id: null,
@@ -37,15 +42,15 @@ class NoteEditor extends Component {
                 tags: [],
             }
         }
-        if (props.id !== undefined && props.id !== state.id) {
+        if (store.note.id !== undefined && store.note.id !== state.id) {
             // console.log(
             //     `received new note from id: ${state.id} to id:${props.id}`
             // )
             const newState = {
-                id: props.id,
-                title: props.title,
-                content: props.content,
-                tags: props.tags,
+                id: store.note.id,
+                title: store.note.title,
+                content: store.note.content,
+                tags: store.note.tags,
             }
             // console.log("new state: ", newState)
             return newState
@@ -53,7 +58,7 @@ class NoteEditor extends Component {
         if (props.tags !== state.tags) {
             const newState = {
                 ...state,
-                tags: props.tags,
+                tags: store.note.tags,
             }
             return newState
         }
@@ -89,12 +94,12 @@ class NoteEditor extends Component {
 
     // Triggered when the delete button is pressed
     onDeleteNoteClickedHandler = () => {
-        this.props.deleteNote(this.state.id, this.props.idToken)
+        this.store.note.deleteNote(this.state.id, this.store.auth.tokenId)
     }
 
     // Triggered when the tag is clicked
     onRemoveTagClickedHandler = tag => {
-        this.props.deleteTag(this.state.id, tag, this.props.idToken)
+        this.store.deleteTag(this.state.id, tag, this.store.auth.tokenId)
     }
 
     // Triggered when user presses a key in the tag input
@@ -102,10 +107,10 @@ class NoteEditor extends Component {
         if (event.key === "Enter") {
             event.preventDefault()
             if (!this.props.tags.includes(this.state.tagInput.trim())) {
-                this.props.addTag(
+                this.store.note.addTag(
                     this.state.id,
                     [this.state.tagInput.trim()],
-                    this.props.idToken
+                    this.store.auth.tokenId
                 )
                 this.setState({ ...this.state, tagInput: "" })
             }
@@ -180,7 +185,7 @@ class NoteEditor extends Component {
     // Updates the note locally and saves it to the database
     updateNoteAndSaveNote = async () => {
         try {
-            const { title, content } = await this.props.updateCurrentNote(
+            const { title, content } = await this.store.note.updateCurrentNote(
                 this.state.title,
                 this.state.content
             )
@@ -188,10 +193,11 @@ class NoteEditor extends Component {
                 this.state.id,
                 title,
                 content,
-                this.props.idToken
+                this.store.auth.tokenId
             )
         } catch (error) {
             console.log(error)
+            throw error
         }
     }
 
@@ -205,8 +211,8 @@ class NoteEditor extends Component {
             </ToolbarButton>
         )
         const tags =
-            this.props.tags &&
-            this.props.tags.map(tag => (
+            this.store.note.tags &&
+            this.store.note.tags.map(tag => (
                 <div
                     key={tag}
                     className={classes.Tag}
@@ -216,20 +222,6 @@ class NoteEditor extends Component {
                 </div>
             ))
 
-        // const tagInput = (
-        //     <input
-        //         className={classes.TagInput}
-        //         value={this.state.tagInput}
-        //         onChange={event =>
-        //             this.setState({
-        //                 ...this.state,
-        //                 tagInput: event.target.value,
-        //             })
-        //         }
-        //         onKeyUp={this.onTagInputKeyUpHandler}
-        //         placeholder="Add tag here..."
-        //     />
-        // )
         const tagInput = (
             <ToolbarInput
                 value={this.state.tagInput}
@@ -245,7 +237,7 @@ class NoteEditor extends Component {
         )
 
         const emailLink = (
-            <a href="" className={classes.Email} onClick={(e) => e.preventDefault()} >{this.props.email}</a>
+            <a href="" className={classes.Email} onClick={(e) => e.preventDefault()} >{this.store.auth.email}</a>
         )
 
         const toolbar = (
@@ -293,23 +285,3 @@ class NoteEditor extends Component {
         )
     }
 }
-
-export default connect(
-    state => ({
-        id: state.note.currentNote.id,
-        title: state.note.currentNote.title,
-        content: state.note.currentNote.content,
-        tags: state.note.currentNote.tags,
-        idToken: state.auth.idToken,
-        userId: state.auth.localId,
-        email: state.auth.email,
-    }),
-    {
-        saveNote: actions.saveNote,
-        deleteNote: actions.removeNote,
-        updateCurrentNote: actions.updateCurrentNote,
-        updateStatus: actions.updateStatus,
-        addTag: actions.addTag,
-        deleteTag: actions.deleteTag,
-    }
-)(NoteEditor)
