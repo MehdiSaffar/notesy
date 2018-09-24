@@ -53,3 +53,9 @@
 .Title, .Content {
     margin-left: 20px;
 }
+
+.Email {
+    color: var(--darker-blue);
+    margin: auto;
+    margin-right: 16px;
+}

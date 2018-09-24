@@ -244,11 +244,16 @@ class NoteEditor extends Component {
             />
         )
 
+        const emailLink = (
+            <a href="" className={classes.Email} onClick={(e) => e.preventDefault()} >{this.props.email}</a>
+        )
+
         const toolbar = (
             <div className={classes.Toolbar}>
                 {deleteNoteButton}
                 {tags}
                 {tagInput}
+                {emailLink}
             </div>
         )
 
@@ -297,6 +302,7 @@ export default connect(
         tags: state.note.currentNote.tags,
         idToken: state.auth.idToken,
         userId: state.auth.localId,
+        email: state.auth.email,
     }),
     {
         saveNote: actions.saveNote,
