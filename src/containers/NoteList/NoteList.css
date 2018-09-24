@@ -26,9 +26,11 @@
 }
 
 .SearchBar {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
+    max-width: 100px;
 }
 
 .AddNote.AddNote {
     margin: 0px 8px;
+    flex: 0 0 30px;
 }

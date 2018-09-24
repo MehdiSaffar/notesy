@@ -1,6 +1,5 @@
 import { observable, computed, action, runInAction } from "mobx"
-import firebase from './../shared/firebase'
-
+import firebase from "./../shared/firebase"
 
 export default class NoteStore {
     @observable
@@ -35,7 +34,7 @@ export default class NoteStore {
             }
             runInAction("addNoteSuccess", () => {
                 this.notes.push(newNote)
-                this.setCurrentNote()
+                this.setCurrentNote(newNote.id)
             })
         } catch (error) {
             console.error("addNote", error)
@@ -46,7 +45,7 @@ export default class NoteStore {
     async getNotes(userId, tokenId) {
         try {
             const notes = await firebase.getNotes(userId, tokenId)
-            runInAction(() => this.notes = notes) 
+            runInAction(() => (this.notes = notes))
         } catch (error) {
             console.error("getNotes", error)
         }
@@ -63,7 +62,7 @@ export default class NoteStore {
             const data = await firebase.removeNote(id, tokenId)
             this.notes = this.notes.filter(note => note.id !== id)
             if (this.currentNote.id === id) {
-                this.currentNote = {}
+                this.currentNote = this.notes[this.notes.length - 1].id
             }
             this.deletingNote = null
         } catch (error) {
@@ -71,22 +70,28 @@ export default class NoteStore {
         }
     }
     @action
-    async addTag(tags, id, tokenId) {
+    async addTag(id, tags, tokenId) {
+        console.info("addTag in store", tags, id, tokenId)
         try {
             const newTags = await firebase.addTags(tags, id, tokenId)
             // nope
-            this.notes.find(el => el.id === id).tags = newTags
-            this.currentNote.tags = newTags
+            runInAction(() => {
+                this.notes.find(el => el.id === id).tags = newTags
+                this.currentNote.tags = newTags
+                // console.log(this.currentNote.tags)
+            })
         } catch (error) {
             console.error("addTag", error)
         }
     }
     @action
-    async deleteTag(tag, id, tokenId) {
+    async removeTag(id, tag, tokenId) {
         try {
             const newTags = await firebase.deleteTag(tag, id, tokenId)
-            this.notes.find(el => el.id === id).tags = newTags
-            this.currentNote.tags = newTags
+            runInAction(() => {
+                this.notes.find(el => el.id === id).tags = newTags
+                this.currentNote.tags = newTags
+            })
         } catch (error) {
             console.error("deleteTag", error)
         }

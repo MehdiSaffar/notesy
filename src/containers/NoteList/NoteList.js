@@ -6,13 +6,14 @@ import Fuse from "fuse.js"
 import ToolbarInput from "./../../components/UI/Form/Input/ToolbarInput"
 import ToolbarButton from "./../../components/UI/Form/Button/ToolbarButton"
 import { observer, inject} from 'mobx-react';
+import { observable, computed } from "mobx";
 
 @inject('store')
 @observer
 export default class NoteList extends Component {
-    state = {
-        searchText: "",
-    }
+    @computed get store() { return this.props.store}
+    @observable searchText = ''
+    // @computed get note() { return this.props.store.note}
     componentDidMount() {
         const userId = this.props.store.auth.userId
         const tokenId =  this.props.store.auth.tokenId
@@ -27,15 +28,12 @@ export default class NoteList extends Component {
     }
 
     onAddNoteButtonClickedHandler = () => {
-        this.props.addNote("", "", this.props.store.auth.userId, this.props.store.auth.idToken)
+        this.store.note.addNote("", "", this.store.auth.userId, this.store.auth.tokenId)
     }
 
     onSearchBarChangedHandler = event => {
         event.preventDefault()
-        this.setState({
-            ...this.state,
-            searchText: event.target.value,
-        })
+        this.searchText = event.target.value
     }
 
     getSearchResults = () => {
@@ -46,7 +44,7 @@ export default class NoteList extends Component {
             keys: ["title", "content", "tags"],
         }
         const fuse = new Fuse(this.props.store.note.notes, searchOptions)
-        return fuse.search(this.state.searchText.trim())
+        return fuse.search(this.searchText.trim())
     }
 
     render() {
@@ -62,7 +60,7 @@ export default class NoteList extends Component {
             <ToolbarInput
                 extraClass={classes.SearchBar}
                 onChange={this.onSearchBarChangedHandler}
-                value={this.state.searchText}
+                value={this.searchText}
                 placeholder="Search notes..."
             />
         )
@@ -73,7 +71,7 @@ export default class NoteList extends Component {
             </div>
         )
 
-        const finalNotes = this.state.searchText.trim()
+        const finalNotes = this.searchText.trim()
             ? this.getSearchResults()
             : store.note.notes
 
