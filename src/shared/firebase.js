@@ -31,6 +31,25 @@ export default new function() {
             throw error
         }
     }
+    this.signupUser = async (email, password, apiKey) => {
+        try {
+            const signupUserUrl = getFirebaseSignupNewUser(apiKey)
+            const { data } = await axios.post(signupUserUrl, {
+                email,
+                password,
+                returnSecureToken: true,
+            })
+            return {
+                tokenId: data.idToken,
+                email: data.email,
+                expiresIn: data.expiresIn,
+                userId: data.localId,
+            }
+        } catch (error) {
+            console.error("signupUser", error)
+            throw error
+        }
+    }
     this.addNote = async (noteData, tokenId) => {
         try {
             const response = await axios.post(

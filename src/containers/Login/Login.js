@@ -5,9 +5,11 @@ import { Redirect } from "react-router"
 import classes from "./Login.css"
 import { icons } from "./../../icons"
 import logoImg from "./logo.jpg"
-import { inject, observer } from "mobx-react";
+import { observable } from "mobx"
+import { inject, observer } from "mobx-react"
+import { runInAction } from "mobx"
 
-@inject('store')
+@inject("store")
 @observer
 class Login extends Component {
     forms = {
@@ -105,66 +107,70 @@ class Login extends Component {
             formIsValid: false,
         }),
     }
-    state = {
-        form: this.forms["login"](),
-        error: null,
-    }
+
+    @observable
+    form = this.forms["login"]()
+    @observable
+    error = null
+    @observable
+    isLoginLoading = false
 
     onLoginButtonClickedHandler = async event => {
-        const email = this.state.form.elements.find(el => el.name === "email")
+        const email = this.form.elements.find(el => el.name === "email")
             .value
-        const password = this.state.form.elements.find(
+        const password = this.form.elements.find(
             el => el.name === "password"
         ).value
-        this.setState({
-            ...this.state,
-            isLoginLoading: true,
-        })
+        this.isLoginLoading = true
         try {
             await this.props.store.auth.loginUser(email, password)
-            this.setState({ ...this.state, isLoginLoading: false })
+            runInAction(() => {
+                this.isLoginLoading = false
+            })
         } catch (error) {
             let message =
                 "There was an error signing up. Please try again in a moment."
-            switch (error.message) {
-                case "EMAIL_EXISTS":
-                    message = "The email entered already exists!"
-                    break
+            switch (error.response.data.error.message) {
+                case "EMAIL_NOT_FOUND":
+                    message = "There is no account with this email. Try signing up?"
+                    break;
+                case "INVALID_PASSWORD":
+                    message = "The password your entered is not valid."
+                    break;
+                case "USER_DISABLED":
+                    message = "The account associated with this email has been disabled. Please contact an administrator."
+                    break;
                 default:
                     break
             }
             console.log(message)
 
-            this.setState({
-                ...this.state,
-                error: message,
-                isLoginLoading: false,
+            runInAction(() => {
+                this.error = message
+                this.isLoginLoading = false
             })
         }
     }
 
     onLogoutButtonClickedHandler = event => {
-        this.props.logoutUser()
+        this.props.store.auth.logoutUser()
     }
 
     onFormUpdatedHandler = updatedForm => {
-        this.setState({
-            form: updatedForm,
-        })
+        this.form = updatedForm
     }
 
-    onSignupButtonClickedHandler = async (event) => {
-        const email = this.state.form.elements.find(el => el.name === "email")
+    onSignupButtonClickedHandler = async event => {
+        const email = this.form.elements.find(el => el.name === "email").value
+        const password = this.form.elements.find(el => el.name === "password")
             .value
-        const password = this.state.form.elements.find(
-            el => el.name === "password"
-        ).value
         try {
-            await this.props.signupUser(email, password)
+            await this.props.store.auth.signupUser(email, password)
         } catch (error) {
+            // error = error.response.data
             let message =
                 "There was an error signing up. Please try again in a moment."
-            switch (error.message) {
+            switch (error.response.data.error.message) {
                 case "EMAIL_EXISTS":
                     message =
                         "There is already an account with this email. Try logging in?"
@@ -175,16 +181,16 @@ class Login extends Component {
                 default:
                     break
             }
-            this.setState({ ...this.state, error: message })
+            this.error = message
         }
     }
 
     onChangeFormClickedHandler = event => {
         event.preventDefault()
-        if (this.state.form.name === "login") {
-            this.setState({ form: this.forms["signup"]() })
+        if (this.form.name === "login") {
+            this.form = this.forms["signup"]()
         } else {
-            this.setState({ form: this.forms["login"]() })
+            this.form = this.forms["login"]()
         }
     }
 
@@ -192,7 +198,7 @@ class Login extends Component {
         const store = this.props.store
         const redirect = store.auth.isLoggedIn ? <Redirect to="/app" /> : null
 
-        const error = <p>{this.state.error}</p>
+        const error = <p>{this.error}</p>
         const logo = (
             <div className={classes.Logo}>
                 <img src={logoImg} alt="Notesy Logo" />
@@ -200,18 +206,18 @@ class Login extends Component {
         )
         const innerForm = (
             <Form
-                form={this.state.form}
+                form={this.form}
                 onFormUpdated={this.onFormUpdatedHandler}
             />
         )
         const buttons =
-            this.state.form.name === "login" ? (
+            this.form.name === "login" ? (
                 <Button
                     type="submit"
                     btnStyle="Success"
                     extraClasses={[classes.LoginButton]}
                     disabled={
-                        store.auth.isLoggedIn || !this.state.form.formIsValid
+                        store.auth.isLoggedIn || !this.form.formIsValid
                     }
                     onClick={this.onLoginButtonClickedHandler}
                 >
@@ -221,7 +227,7 @@ class Login extends Component {
                 <Button
                     type="submit"
                     btnStyle="Success"
-                    disabled={!this.state.form.formIsValid}
+                    disabled={!this.form.formIsValid}
                     onClick={this.onSignupButtonClickedHandler}
                 >
                     Signup
@@ -229,7 +235,7 @@ class Login extends Component {
             )
         const formSwitch = (
             <p>
-                {this.state.form.name === "login" ? (
+                {this.form.name === "login" ? (
                     <a href="" onClick={this.onChangeFormClickedHandler}>
                         Not signed up? Sign up now!
                     </a>

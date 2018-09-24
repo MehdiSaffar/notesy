@@ -1,4 +1,4 @@
-import { computed, observable, action, runInAction} from "mobx"
+import { computed, observable, action, runInAction } from "mobx"
 import firebase from "../shared/firebase"
 
 export default class AuthStore {
@@ -81,7 +81,11 @@ export default class AuthStore {
     @action
     async loginUser(email, password) {
         try {
-            const authData = await firebase.loginUser(email, password, this.apiKey)
+            const authData = await firebase.loginUser(
+                email,
+                password,
+                this.apiKey
+            )
             // console.info(authData)
             runInAction(() => {
                 this.tokenId = authData.tokenId
@@ -93,8 +97,10 @@ export default class AuthStore {
                 window.localStorage.setItem("tokenId", this.tokenId)
                 window.localStorage.setItem("userId", this.userId)
                 window.localStorage.setItem("email", this.email)
-                window.localStorage.setItem("expirationDate", this.expirationDate)
-
+                window.localStorage.setItem(
+                    "expirationDate",
+                    this.expirationDate
+                )
             })
         } catch (error) {
             console.error("loginUser", error)
@@ -112,5 +118,33 @@ export default class AuthStore {
         window.localStorage.removeItem("userId")
         window.localStorage.removeItem("email")
         window.localStorage.removeItem("expirationDate")
+    }
+    @action
+    async signupUser(email, password) {
+        try {
+            const authData = await firebase.signupUser(
+                email,
+                password,
+                this.apiKey
+            )
+            runInAction(() => {
+                this.tokenId = authData.tokenId
+                this.email = authData.email
+                this.expirationDate = new Date(
+                    new Date().getTime() + authData.expiresIn * 1000
+                )
+                this.userId = authData.userId
+                window.localStorage.setItem("tokenId", this.tokenId)
+                window.localStorage.setItem("userId", this.userId)
+                window.localStorage.setItem("email", this.email)
+                window.localStorage.setItem(
+                    "expirationDate",
+                    this.expirationDate
+                )
+            })
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
     }
 }
