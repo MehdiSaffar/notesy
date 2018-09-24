@@ -14,7 +14,7 @@ export default new function() {
     this.loginUser = async (email, password, apiKey) => {
         try {
             const verifyPasswordUrl = getFirebaseVerifyPasswordUrl(apiKey)
-            const {data} = await axios.post(verifyPasswordUrl, {
+            const { data } = await axios.post(verifyPasswordUrl, {
                 email,
                 password,
                 returnSecureToken: true,
@@ -78,7 +78,7 @@ export default new function() {
             return Object.keys(response.data)
                 .map(key => ({
                     id: key,
-                    userId: response.data[key].user_id,
+                    userId: response.data[key].userId,
                     title: response.data[key].title,
                     content: response.data[key].content,
                     tags: response.data[key].tags || [],

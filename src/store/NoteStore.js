@@ -95,7 +95,6 @@ export default class NoteStore {
         } catch (error) {
             console.error("deleteTag", error)
         }
-        // nope
     }
     @action
     removeNoteStart(id) {
