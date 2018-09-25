@@ -35,7 +35,7 @@ export default class AuthStore {
     }
 
     @action
-    storeAuthInLocalStorage() {
+    storeAuthInLocalStorage = () => {
         // TODO: make util func
         window.localStorage.setItem("tokenId", this.tokenId)
         window.localStorage.setItem("userId", this.userId)
@@ -44,12 +44,15 @@ export default class AuthStore {
     }
 
     @action
-    loginFromLocalStorage() {
-        const tokenId = window.localStorage.getItem("tokenId")
-        const userId = window.localStorage.getItem("userId")
-        const email = window.localStorage.getItem("email")
-        const expirationDate = window.localStorage.getItem("expirationDate")
+    loginFromLocalStorage = () => {
         if (this.isLoggedInLocalStorage) {
+            const {
+                tokenId,
+                userId,
+                email,
+                expirationDate,
+            } = this.getAuthDataFromLocalStorage()
+
             this.tokenId = tokenId
             this.userId = userId
             this.email = email
@@ -57,29 +60,71 @@ export default class AuthStore {
         }
     }
 
-    @computed
-    get isLoggedInLocalStorage() {
-        const tokenId = window.localStorage.getItem("tokenId")
-        const expirationDate = window.localStorage.getItem("expirationDate")
-        if (tokenId) {
-            if (new Date().getTime() <= new Date(expirationDate).getTime()) {
-                console.log("Found ", tokenId)
+    isLoggedInLocalStorage = () => {
+        const authData = this.getAuthDataFromLocalStorage()
+        const missingKeys = [
+            "userId",
+            "tokenId",
+            "email",
+            "expirationDate",
+        ].reduce((array, current) => {
+            if (!authData[current]) array.push(current)
+        })
+
+        if (missingKeys.length > 0) {
+            this.removeAuthDataFromLocalStorage()
+            return false
+        }
+
+        if (authData.tokenId && authData.expirationDate) {
+            if (
+                new Date().getTime() <=
+                new Date(authData.expirationDate).getTime()
+            ) {
                 return true
             }
         } else {
-            console.log("Token found expired")
-            // TODO: make util func
-            window.localStorage.removeItem("tokenId")
-            window.localStorage.removeItem("userId")
-            window.localStorage.removeItem("email")
-            window.localStorage.removeItem("expirationDate")
-            return false
+            this.removeAuthDataFromLocalStorage()
         }
         return false
     }
 
+    getAuthDataFromLocalStorage = () => ({
+        tokenId: window.localStorage.getItem("tokenId"),
+        userId: window.localStorage.getItem("userId"),
+        email: window.localStorage.getItem("email"),
+        expirationDate: window.localStorage.getItem("expirationDate"),
+    })
+
+    removeAuthDataFromLocalStorage = () => {
+        window.localStorage.removeItem("tokenId")
+        window.localStorage.removeItem("userId")
+        window.localStorage.removeItem("email")
+        window.localStorage.removeItem("expirationDate")
+    }
+
+    // @computed
+    // get isLoggedInLocalStorage() {
+    //     // console.info("isLoggedInLocalStorage")
+    //     const tokenId = window.localStorage.getItem("tokenId")
+    //     const expirationDate = window.localStorage.getItem("expirationDate")
+    //     if (tokenId) {
+    //         if (new Date().getTime() <= new Date(expirationDate).getTime()) {
+    //             // console.log("Found ", tokenId)
+    //             return true
+    //         }
+    //     } else {
+    //         // console.log("Token found expired")
+    //         // TODO: make util func
+    //         this.removeAuthDataFromLocalStorage()
+    //         return false
+    //     }
+    //     // console.log("No token found")
+    //     return false
+    // }
+
     @action
-    async loginUser(email, password) {
+    loginUser = async (email, password) => {
         try {
             const authData = await firebase.loginUser(
                 email,
@@ -109,7 +154,7 @@ export default class AuthStore {
     }
 
     @action
-    logoutUser() {
+    logoutUser = () => {
         this.email = null
         this.tokenId = null
         this.userId = null
@@ -120,7 +165,7 @@ export default class AuthStore {
         window.localStorage.removeItem("expirationDate")
     }
     @action
-    async signupUser(email, password) {
+    signupUser = async (email, password) => {
         try {
             const authData = await firebase.signupUser(
                 email,

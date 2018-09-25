@@ -11,9 +11,9 @@ library.add(...ic)
 
 @inject('store')
 class App extends Component {
-    // componentDidMount() {
-    //     this.props.store.checkTokenLocalStorage()
-    // }
+    componentDidMount() {
+        this.props.store.auth.loginFromLocalStorage()
+    }
     render() {
         return <Layout />
     }
