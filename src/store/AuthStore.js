@@ -12,7 +12,7 @@ export default class AuthStore {
             this.tokenId,
             this.userId,
             this.expirationDate,
-        ].every(el => el !== null)
+        ].every(el => el !== null) && this.isTokenStillValid
     }
 
     @observable
@@ -56,7 +56,7 @@ export default class AuthStore {
             this.tokenId = tokenId
             this.userId = userId
             this.email = email
-            this.expirationDate = expirationDate
+            this.expirationDate = new Date(expirationDate)
         }
     }
 
