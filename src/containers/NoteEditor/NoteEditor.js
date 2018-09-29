@@ -17,16 +17,20 @@ export default class NoteEditor extends Component {
     saveTimer = null
 
     @computed
-    get store() {
-        return this.props.store
+    get auth() {
+        return this.props.store.auth
+    }
+    @computed
+    get note() {
+        return this.props.store.note
     }
 
     // @computed get changed() {
-    //     if(this._id !== this.store.note.currentNote.id) {
-    //         // console.info("Different note", this._id, this.store.note.currentNote.id)
+    //     if(this._id !== this.note.currentNote.id) {
+    //         // console.info("Different note", this._id, this.note.currentNote.id)
     //         return true
     //     }
-    //     // console.info("SAME note", this._id, this.store.note.currentNote.id)
+    //     // console.info("SAME note", this._id, this.note.currentNote.id)
     //     return false
     // }
 
@@ -34,7 +38,7 @@ export default class NoteEditor extends Component {
     // checkChanged = autorun(() => {
     //     if(this.changed) {
     //         // console.info("changed id")
-    //         this._id = this.store.note.currentNote.id
+    //         this._id = this.note.currentNote.id
     //     }
     // })
     /// DRAFT ---------------------
@@ -48,7 +52,7 @@ export default class NoteEditor extends Component {
     // @computed get
     // title() {
     //     if(this.changed) {
-    //         this._title = this.store.note.currentNote.title
+    //         this._title = this.note.currentNote.title
     //     }
     //     return this._title
     // }
@@ -56,7 +60,7 @@ export default class NoteEditor extends Component {
     // @computed get
     // content() {
     //     if(this.changed) {
-    //         this._content = this.store.note.currentNote.content
+    //         this._content = this.note.currentNote.content
     //     }
     // }
 
@@ -78,35 +82,35 @@ export default class NoteEditor extends Component {
 
     // Triggered when the note content changes
     onTitleChangedHandler = event => {
-        this.store.note.currentNote.title = event.target.value
+        this.note.currentNote.title = event.target.value
         this.checkSaveTimer()
     }
 
     // Triggered when the note content changes
     onContentChangedHandler = event => {
-        this.store.note.currentNote.content = event.target.value
+        this.note.currentNote.content = event.target.value
         this.checkSaveTimer()
     }
 
     // Triggered when the delete button is pressed
     onDeleteNoteClickedHandler = () => {
-        this.store.note.removeNote(this.store.note.currentNote.id, this.store.auth.tokenId)
+        this.note.removeNote(this.note.currentNote.id, this.auth.tokenId)
     }
 
     // Triggered when the tag is clicked
     onRemoveTagClickedHandler = tag => {
-        this.store.note.removeTag(this.store.note.currentNote.id, tag, this.store.auth.tokenId)
+        this.note.removeTag(this.note.currentNote.id, tag, this.auth.tokenId)
     }
 
     // Triggered when user presses a key in the tag input
     onTagInputKeyUpHandler = event => {
         if (event.key === "Enter") {
             event.preventDefault()
-            if (!this.store.note.currentNote.tags.includes(this.tagInput.trim())) {
-                this.store.note.addTag(
-                    this.store.note.currentNote.id,
+            if (!this.note.currentNote.tags.includes(this.tagInput.trim())) {
+                this.note.addTag(
+                    this.note.currentNote.id,
                     [this.tagInput.trim()],
-                    this.store.auth.tokenId
+                    this.auth.tokenId
                 )
                 this.tagInput = ""
             }
@@ -127,15 +131,15 @@ export default class NoteEditor extends Component {
     // Updates the note locally and saves it to the database
     updateNoteAndSaveNote = async () => {
         try {
-            await this.store.note.updateCurrentNote(
-                this.store.note.currentNote.title,
-                this.store.note.currentNote.content
+            await this.note.updateCurrentNote(
+                this.note.currentNote.title,
+                this.note.currentNote.content
             )
-            this.store.note.saveNote(
-                this.store.note.currentNote.id,
-                this.store.note.currentNote.title,
-                this.store.note.currentNote.content,
-                this.store.auth.tokenId
+            this.note.saveNote(
+                this.note.currentNote.id,
+                this.note.currentNote.title,
+                this.note.currentNote.content,
+                this.auth.tokenId
             )
         } catch (error) {
             console.log(error)
@@ -155,8 +159,8 @@ export default class NoteEditor extends Component {
         )
 
         const tags =
-            this.store.note.currentNote.tags &&
-            this.store.note.currentNote.tags.map(tag => (
+            this.note.currentNote.tags &&
+            this.note.currentNote.tags.map(tag => (
                 <div
                     key={tag}
                     className={classes.Tag}
@@ -181,7 +185,7 @@ export default class NoteEditor extends Component {
                 className={classes.Email}
                 onClick={e => e.preventDefault()}
             >
-                {this.store.auth.email}
+                {this.auth.email}
             </a>
         )
 
@@ -198,7 +202,7 @@ export default class NoteEditor extends Component {
             <input
                 className={classes.Title}
                 placeholder="Title"
-                value={this.store.note.currentNote.title}
+                value={this.note.currentNote.title}
                 onChange={this.onTitleChangedHandler}
                 onKeyDown={e => {
                     if (e.key === "Enter") {
@@ -215,7 +219,7 @@ export default class NoteEditor extends Component {
                 className={classes.Content}
                 placeholder="Content"
                 ref={this.contentTextarea}
-                value={this.store.note.currentNote.content}
+                value={this.note.currentNote.content}
                 onChange={this.onContentChangedHandler}
                 // onKeyDown={this.onContentKeyDownHandler}
             />

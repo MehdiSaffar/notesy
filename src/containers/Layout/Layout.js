@@ -6,22 +6,30 @@ import NoteApp from "../NoteApp/NoteApp"
 import NavItem from "./../../components/UI/NavBar/NavItem/NavItem"
 import classes from "./Layout.css"
 import { withRouter } from "react-router"
-import { observer, inject} from "mobx-react";
+import { observer, inject } from "mobx-react"
+import { computed } from "mobx"
 
 @inject('store')
 @observer
 class Layout extends Component {
+    @computed
+    get auth() {
+        return this.props.store.auth
+    }
+    @computed
+    get note() {
+        return this.props.store.note
+    }
     render() {
-        const store = this.props.store
         const navigationBar = (
             <div className={classes.NavBar}>
-                {store.auth.isLoggedIn && (
-                    <NavItem to="/logout" onClick={store.auth.logoutUser}>
+                {this.auth.isLoggedIn && (
+                    <NavItem to="/logout" onClick={this.auth.logoutUser}>
                         Logout
                     </NavItem>
                 )}
-                {store.auth.isLoggedIn && <NavItem to="/app">Notes</NavItem>}
-                {store.auth.isLoggedIn || <NavItem to="/login">Login</NavItem>}
+                {this.auth.isLoggedIn && <NavItem to="/app">Notes</NavItem>}
+                {this.auth.isLoggedIn || <NavItem to="/login">Login</NavItem>}
                 <NavItem to="/">Main page</NavItem>
             </div>
         )
@@ -30,7 +38,7 @@ class Layout extends Component {
             <div className={classes.Content}>
                 <Switch>
                     <Route path="/login" exact component={Login} />
-                    {store.auth.isLoggedIn ? (
+                    {this.auth.isLoggedIn ? (
                         <Route path="/app" exact component={NoteApp} />
                     ) : (
                         <Redirect to="/login" />
@@ -42,7 +50,7 @@ class Layout extends Component {
 
         const footer = (
             <div className={classes.Footer}>
-                <p>{store.note.status}</p>
+                <p>{this.note.status}</p>
             </div>
         )
 

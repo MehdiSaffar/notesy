@@ -10,7 +10,60 @@ export const getFirebaseSignupNewUser = apiKey =>
     "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=" +
     apiKey
 
+export const getFirebaseSendVerificationEmailUrl = apiKey =>
+    "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getOobConfirmationCode?key=" +
+    apiKey
+export const getFirebaseVerifyEmailUrl = apiKey =>
+    "https://www.googleapis.com/identitytoolkit/v3/relyingparty/setAccountInfo?key=" +
+    apiKey
+export const getFirebaseGetUserDataUrl = apiKey =>
+    "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getAccountInfo?key=" +
+    apiKey
+
+
 export default new function() {
+    this.sendVerificationEmail = async (tokenId, apiKey) => {
+        try {
+            const data = {
+                requestType: "VERIFY_EMAIL",
+                idToken: tokenId,
+            }
+
+            const sendVerificationEmailUrl = getFirebaseSendVerificationEmailUrl(
+                apiKey
+            )
+
+            const response = await axios.post(sendVerificationEmailUrl, data)
+        } catch (error) {
+            console.error("sendVerificationEmail", error)
+            throw error
+        }
+    }
+    this.verifyEmail = async (oobCode, apiKey) => {
+        try {
+            const data = {
+                oobCode,
+            }
+
+            const verifyEmailUrl = getFirebaseVerifyEmailUrl(apiKey)
+
+            const response = await axios.post(verifyEmailUrl, data)
+            return response.data.emailVerified
+        } catch (error) {
+            console.error("verifyEmail", error)
+            throw error
+        }
+    }
+    this.getUserData = async(tokenId, apiKey) => {
+        const data = {
+            idToken: tokenId
+        }
+        const getUserDataUrl = getFirebaseGetUserDataUrl(apiKey)
+        const response = await axios.post(getUserDataUrl, data)
+        console.log(response)
+        return response.data.users[0]
+
+    }
     this.loginUser = async (email, password, apiKey) => {
         try {
             const verifyPasswordUrl = getFirebaseVerifyPasswordUrl(apiKey)

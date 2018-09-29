@@ -11,9 +11,12 @@ library.add(...ic)
 
 @inject('store')
 class App extends Component {
+
     componentDidMount() {
-        this.props.store.auth.loginFromLocalStorage()
+        if(!this.props.store.isLoggedIn) 
+         this.props.store.auth.loginFromLocalStorage()
     }
+
     render() {
         return <Layout />
     }

@@ -33,7 +33,7 @@
     border-radius: 10px;
     background-color: var(--lighter-blue);
     transform: translateX(30px);
-    transition: transform 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
 }
 
 .Title {
@@ -47,7 +47,7 @@ h3 {
 }
 
 .BusyDeleting {
-    transition: all 0.2s ease-in;
+    transition: all 0.2s ease-in-out;
     background-color: rgb(255, 111, 111);
     border-color: rgb(255, 69, 69);
 }

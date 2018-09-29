@@ -123,10 +123,19 @@ class Login extends Component {
         ).value
         this.isLoginLoading = true
         try {
-            await this.props.store.auth.loginUser(email, password)
+            const tokenId = await this.props.store.auth.getTokenId(email, password)
+            const isVerified = await this.props.store.auth.isEmailVerified(tokenId)
             runInAction(() => {
                 this.isLoginLoading = false
             })
+            if(isVerified) {
+                // alert("Your email is verified")
+                await this.props.store.auth.loginUser(email, password)
+            }
+            else {
+                alert("Your email is NOT verified")
+                await this.props.store.auth.sendVerificationEmail(tokenId)
+            }
         } catch (error) {
             let message =
                 "There was an error signing up. Please try again in a moment."
@@ -165,7 +174,9 @@ class Login extends Component {
         const password = this.form.elements.find(el => el.name === "password")
             .value
         try {
-            await this.props.store.auth.signupUser(email, password)
+            const signupResponse = await this.props.store.auth.signupUser(email, password)
+            await this.props.store.auth.sendVerificationEmail(signupResponse.tokenId)
+            alert("Verification email has been sent to " + signupResponse.email)
         } catch (error) {
             // error = error.response.data
             let message =
@@ -192,6 +203,7 @@ class Login extends Component {
         } else {
             this.form = this.forms["login"]()
         }
+        this.error = null
     }
 
     render() {
@@ -227,6 +239,7 @@ class Login extends Component {
                 <Button
                     type="submit"
                     btnStyle="Success"
+                    extraClasses={[classes.LoginButton]}
                     disabled={!this.form.formIsValid}
                     onClick={this.onSignupButtonClickedHandler}
                 >

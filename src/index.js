@@ -8,10 +8,9 @@ import { Provider } from 'mobx-react'
 import NoteStore from './store/NoteStore';
 import AuthStore from './store/AuthStore';
 
-
 const store = {
-    note: new NoteStore(),
-    auth: new AuthStore()
+    note:  new NoteStore(this),
+    auth:  new AuthStore(this)
 }
 
 const app = (

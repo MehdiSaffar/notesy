@@ -11,24 +11,32 @@ import { observable, computed } from "mobx";
 @inject('store')
 @observer
 export default class NoteList extends Component {
-    @computed get store() { return this.props.store}
+    @computed
+    get auth() {
+        return this.props.store.auth
+    }
+    @computed
+    get note() {
+        return this.props.store.note
+    }
+
     @observable searchText = ''
-    // @computed get note() { return this.props.store.note}
+    // @computed get note() { return this.note}
     componentDidMount() {
-        const userId = this.props.store.auth.userId
-        const tokenId =  this.props.store.auth.tokenId
-        this.props.store.note.getNotes(userId, tokenId)
+        const userId = this.auth.userId
+        const tokenId =  this.auth.tokenId
+        this.note.getNotes(userId, tokenId)
     }
 
     onNoteListItemClickedHandler = id => {
         // No point in sending action if same selected
-        if (this.props.store.note.currentNote.id !== id) {
-            this.props.store.note.setCurrentNote(id)
+        if (this.note.currentNote.id !== id) {
+            this.note.setCurrentNote(id)
         }
     }
 
     onAddNoteButtonClickedHandler = () => {
-        this.store.note.addNote("", "", this.store.auth.userId, this.store.auth.tokenId)
+        this.note.addNote("", "", this.auth.userId, this.auth.tokenId)
     }
 
     onSearchBarChangedHandler = event => {
@@ -43,7 +51,7 @@ export default class NoteList extends Component {
             matchAllTokens: true,
             keys: ["title", "content", "tags"],
         }
-        const fuse = new Fuse(this.props.store.note.notes, searchOptions)
+        const fuse = new Fuse(this.note.notes, searchOptions)
         return fuse.search(this.searchText.trim())
     }
 
@@ -84,7 +92,7 @@ export default class NoteList extends Component {
                         store.note.currentNote &&
                         store.note.currentNote.id === note.id
                     }
-                    isBusyDeleting={store.note.deletingNote === note.id}
+                    isBusyDeleting={store.note.deletingNote === note.id || !note.ready}
                     onClick={() => this.onNoteListItemClickedHandler(note.id)}
                 >
                     {note.content}
