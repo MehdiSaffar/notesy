@@ -2,6 +2,9 @@
 
 Minimalist note taking app using React and MobX (for state management)
 
+[[docs/Login.png]]
+[[docs/App.png]]
+
 ## Getting Started
 In order to fire up the development server, follow these instructions:
 ```
