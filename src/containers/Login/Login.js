@@ -85,6 +85,7 @@ class Login extends Component {
                     elementConfig: {
                         type: "text",
                         placeholder: "Email Address",
+                        autoComplete: 'email'
                     },
                     validation: {
                         isEmail: true,
