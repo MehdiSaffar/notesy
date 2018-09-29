@@ -1,4 +1,4 @@
-import React, { Component } from "react"
+import React, { Component, Fragment} from "react"
 import Form from "./../../components/UI/Form/Form"
 import Button from "./../../components/UI/Form/Button/Button"
 import { Redirect } from "react-router"
@@ -8,6 +8,7 @@ import logoImg from "./logo.jpg"
 import { observable } from "mobx"
 import { inject, observer } from "mobx-react"
 import { runInAction } from "mobx"
+import Spinner from './../../components/UI/Spinner/Spinner';
 
 @inject("store")
 @observer
@@ -42,6 +43,7 @@ class Login extends Component {
                     elementConfig: {
                         type: "password",
                         placeholder: "Password",
+                        autoComplete: 'password'
                     },
                     validation: {
                         isEmail: false,
@@ -58,6 +60,8 @@ class Login extends Component {
                     elementConfig: {
                         type: "password",
                         placeholder: "Retype password",
+                        autofill: 'off',
+                        autoComplete: 'off'
                     },
                     validation: {
                         isEmail: false,
@@ -97,6 +101,7 @@ class Login extends Component {
                     elementConfig: {
                         type: "password",
                         placeholder: "Password",
+                        autoComplete: 'password'
                     },
                     validation: {
                         isEmail: false,
@@ -116,6 +121,7 @@ class Login extends Component {
     isLoginLoading = false
 
     onLoginButtonClickedHandler = async event => {
+        console.info('onLoginButtonClickedHandler')
         const email = this.form.elements.find(el => el.name === "email")
             .value
         const password = this.form.elements.find(
@@ -125,9 +131,10 @@ class Login extends Component {
         try {
             const tokenId = await this.props.store.auth.getTokenId(email, password)
             const isVerified = await this.props.store.auth.isEmailVerified(tokenId)
-            runInAction(() => {
-                this.isLoginLoading = false
-            })
+            // no need to set it again
+            // runInAction(() => {
+            //     this.isLoginLoading = false
+            // })
             if(isVerified) {
                 // alert("Your email is verified")
                 await this.props.store.auth.loginUser(email, password)
@@ -170,6 +177,7 @@ class Login extends Component {
     }
 
     onSignupButtonClickedHandler = async event => {
+        console.info('onSignupButtonClickedHandler')
         const email = this.form.elements.find(el => el.name === "email").value
         const password = this.form.elements.find(el => el.name === "password")
             .value
@@ -261,10 +269,18 @@ class Login extends Component {
         )
         const form = (
             <div className={classes.Form}>
-                {error}
-                {innerForm}
-                {buttons}
-                {formSwitch}
+              {!this.isLoginLoading ? 
+                  <Fragment>
+                    {error}
+                    <form onSubmit={(e) => e.preventDefault()}>
+                        {innerForm}
+                        {buttons}
+                        {formSwitch}
+                    </form>
+                  </Fragment>
+                : <Spinner />
+              }
+
             </div>
         )
         return (
