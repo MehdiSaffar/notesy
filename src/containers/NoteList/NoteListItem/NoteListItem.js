@@ -9,9 +9,10 @@ const noteListItem = props => {
     const title = props.title
     const content = props.children
     const emptyNote = <i>Empty Note</i>
-    const isBusyDeleting = props.isBusyDeleting
-    if (isBusyDeleting) {
-        cls.push(classes.BusyDeleting)
+    if (props.state === "getting deleted") {
+        cls.push(classes.GettingDeleted)
+    } else if(props.state === "getting added"){
+        cls.push(classes.GettingAdded)
     }
     const isEmpty = props.title === "" && props.children === ""
     if (isEmpty) {

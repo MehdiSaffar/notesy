@@ -92,8 +92,8 @@ export default class NoteList extends Component {
                         store.note.currentNote &&
                         store.note.currentNote.id === note.id
                     }
-                    isBusyDeleting={store.note.deletingNote === note.id || !note.ready}
-                    onClick={() => this.onNoteListItemClickedHandler(note.id)}
+                    state={note.state}
+                    onClick={() =>  this.onNoteListItemClickedHandler(note.id)}
                 >
                     {note.content}
                 </NoteListItem>

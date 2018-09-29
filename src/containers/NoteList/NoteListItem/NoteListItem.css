@@ -46,10 +46,16 @@ h3 {
     margin: 0;
 }
 
-.BusyDeleting {
+.GettingDeleted {
     transition: all 0.2s ease-in-out;
     background-color: rgb(255, 111, 111);
     border-color: rgb(255, 69, 69);
+}
+
+.GettingAdded {
+    transition: all 0.2s ease-in-out;
+    background-color: rgb(111, 255, 135);
+    border-color: rgb(69, 255, 69);
 }
 
 .EmptyNote {

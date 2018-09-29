@@ -47,7 +47,7 @@ export default class NoteStore {
                     title: "",
                     content: "",
                     tags: [],
-                    ready: false,
+                    state: "getting added"
                 }
 
                 this.notes.push(tempNote)
@@ -67,7 +67,7 @@ export default class NoteStore {
                         title,
                         content,
                         tags: data.tags || [],
-                        ready: true,
+                        state: ''
                     }
                     this.notes[this.notes.length - 1] = tempNote
 
@@ -108,12 +108,16 @@ export default class NoteStore {
 
         try {
             this.updateNoteStatus("Removing note...")
-            const data = await firebase.removeNote(id, tokenId)
-            this.notes = this.notes.filter(note => note.id !== id)
-            if (this.currentNote.id === id) {
-                this.currentNote = this.notes[this.notes.length - 1].id
-            }
-            this.deletingNote = null
+
+            this.notes.find(note => note.id === id).state = 'getting deleted'
+            await firebase.removeNote(id, tokenId)
+            runInAction(() => {
+                this.notes = this.notes.filter(note => note.id !== id)
+                if (this.currentNote.id === id) {
+                    this.currentNote.id = this.notes[this.notes.length - 1].id
+                }
+            })
+
         } catch (error) {
             console.error("removeNote", error)
         } finally {
